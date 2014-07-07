@@ -1,4 +1,4 @@
-jDotNotification
+jDotNotation
 ================
 
-Library to access class attributes via dot notification.
+Library to access class attributes via dot notation.
