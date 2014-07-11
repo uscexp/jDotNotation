@@ -1,8 +1,15 @@
+/*
+ * (C) 2014 haui
+ */
 package haui.dotnotation;
 
 import org.junit.Assert;
 import org.junit.Test;
 
+/**
+ * @author eisenhauera
+ *
+ */
 public class AttributeDetailTest {
 
 	@Test

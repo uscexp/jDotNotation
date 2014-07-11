@@ -1,9 +1,4 @@
 /*
- * ----------------------------------------------------------------------------
- * Copyright 2009 - 2014 by PostFinance AG - all rights reserved
- * ----------------------------------------------------------------------------
- */
-/*
  * (C) 2014 haui
  */
 package haui.dotnotation;
@@ -14,6 +9,7 @@ import java.beans.BeanInfo;
 import java.beans.IntrospectionException;
 import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
+import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -30,11 +26,17 @@ public class DotNotationAccessor {
 
 	private boolean resolveAttributesViaAccessorsOnly = true;
 	private boolean accessPrivateAttributes = false;
+	private boolean throwExceptionOnNullValueInAttributePath = true;
 
-	public DotNotationAccessor(boolean resolveAttributesViaAccessorsOnly, boolean accessPrivateAttributes) {
+	public DotNotationAccessor() {
+		this(false, true, true);
+	}
+
+	public DotNotationAccessor(boolean resolveAttributesViaAccessorsOnly, boolean accessPrivateAttributes, boolean throwExceptionOnNullValueInAttributePath) {
 		super();
 		this.resolveAttributesViaAccessorsOnly = resolveAttributesViaAccessorsOnly;
 		this.accessPrivateAttributes = accessPrivateAttributes;
+		this.throwExceptionOnNullValueInAttributePath = throwExceptionOnNullValueInAttributePath;
 	}
 
 	public Object getAttribute(Object rootElement, String attributePath)
@@ -60,15 +62,16 @@ public class DotNotationAccessor {
 				attributes[i++] = new AttributeDetail(stringTokenizer.nextToken());
 			}
 			result = accessAttribute(rootElement, attributes, 0, value, accessorType);
-		} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException | IntrospectionException e) {
-			throw new AttributeAccessExeption(String.format("Error accessing attribute %s", attributes[i]), e);
+		} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException | IntrospectionException |
+				InstantiationException e) {
+			throw new AttributeAccessExeption(String.format("Error accessing attribute %s", attributes[i-1]), e);
 		}
 		return result;
 	}
 
 	protected Object accessAttribute(Object element, AttributeDetail[] attributes, int attributeIndex, Object value,
 			AccessorType accessorType)
-		throws IllegalAccessException, IllegalArgumentException, InvocationTargetException, IntrospectionException {
+		throws IllegalAccessException, IllegalArgumentException, InvocationTargetException, IntrospectionException, InstantiationException {
 		Object result = null;
 		ArrayType arrayType = getArrayType(element);
 
@@ -82,7 +85,7 @@ public class DotNotationAccessor {
 
 	private Object accessArrayTypeAttribute(Object element, AttributeDetail[] attributes, int attributeIndex, Object value,
 			AccessorType accessorType, ArrayType arrayType)
-		throws IllegalAccessException, InvocationTargetException, IntrospectionException {
+		throws IllegalAccessException, InvocationTargetException, IntrospectionException, IllegalArgumentException, InstantiationException {
 		Object result = null;
 		Object[] array = arrayType.getArray(element);
 		List<Object> results = new ArrayList<>();
@@ -119,11 +122,13 @@ public class DotNotationAccessor {
 
 	protected Object accessNonArrayTypeAttribute(Object element, AttributeDetail[] attributes, int attributeIndex, Object value,
 			AccessorType accessorType)
-		throws IntrospectionException, IllegalAccessException, InvocationTargetException {
+		throws IntrospectionException, IllegalAccessException, InvocationTargetException, IllegalArgumentException, InstantiationException {
 		Object result = null;
 		AttributeDetail attribute = attributes[attributeIndex];
 		int nextIndex = attributeIndex + 1;
 		if (element == null) {
+			if(throwExceptionOnNullValueInAttributePath)
+				throw new NullPointerException(String.format("Element %s is null!", attributes[attributeIndex-1].getName()));
 			return null;
 		}
 		if (attributeIndex == (attributes.length - 1)) {
@@ -139,6 +144,8 @@ public class DotNotationAccessor {
 		} else {
 			Object nextElement = getAttributeValueInElement(element, attribute);
 			if (nextElement == null) {
+				if(throwExceptionOnNullValueInAttributePath)
+					throw new NullPointerException(String.format("Element %s is null!", attribute.getName()));
 				return null;
 			}
 			ArrayType arrayType = getArrayType(nextElement);
@@ -178,21 +185,112 @@ public class DotNotationAccessor {
 				result = getValue(element, field);
 			}
 		}
+		if (attribute.isArrayType() && attribute.getIndex() != -1) {
+			ArrayType arrayType = getArrayType(result);
+			
+			switch (arrayType) {
+			case ARRAY:
+				result = Array.get(result, attribute.getIndex());
+				break;
+
+			case COLLECTION:
+				int index = attribute.getIndex();
+				int i = 0;
+				for (Object object : (Collection<?>)result) {
+					if (i++ == index) {
+						result = object;
+						break;
+					}
+				}
+				break;
+			}
+		}
 		return result;
 	}
 
 	protected void setAttributeValueInElement(Object element, AttributeDetail attribute, Object value)
-		throws IntrospectionException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
+		throws IntrospectionException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, InstantiationException {
 		Method method = getSetterMethod(element.getClass(), attribute.getName());
-		if (method != null) {
-			method.invoke(element, value);
-		} else if (!resolveAttributesViaAccessorsOnly) {
-			Field field = getDeclaredField(element.getClass(), attribute.getName());
+		Field field = null;
+		if ((method == null) && !resolveAttributesViaAccessorsOnly) {
+			field = getDeclaredField(element.getClass(), attribute.getName());
+		} else if (method == null) {
+			throw new IllegalAccessException("Access via reflection was not permitted!");
+		}
 
-			if (field != null) {
-				setValue(element, field, value);
+		if (!attribute.isArrayType()) {
+			if (method != null)
+				method.invoke(element, value);
+			else {
+				if (field != null)
+					setValue(element, field, value);
+			}
+		} else {
+			Object result = null;
+
+			if (method != null) {
+				Method getMethod = getGetterMethod(element.getClass(), attribute.getName());
+				result = getMethod.invoke(element, null);
+			} else {
+				if (field != null)
+					result = getValue(element, field);
+			}
+
+			ArrayType arrayType = getArrayType(result);
+
+			switch (arrayType) {
+				case ARRAY:
+					result = setValueInArray(result, attribute, value);
+					break;
+
+				case COLLECTION:
+					result = setValueInCollection((Collection<?>) result, attribute, value);
+					break;
+
+				case NONE:
+					break;
+			}
+			if (method != null)
+				method.invoke(element, result);
+			else {
+				if (field != null)
+					setValue(element, field, result);
 			}
 		}
+	}
+
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	private Object setValueInCollection(Collection<?> collection, AttributeDetail attribute, Object value)
+		throws InstantiationException, IllegalAccessException {
+		Collection copiedObjects = (Collection) collection.getClass().newInstance();
+		if (attribute.getIndex() == -1) {
+			for (int i = 0; i < collection.size(); ++i) {
+				copiedObjects.add(value);
+			}
+		} else {
+			int index = attribute.getIndex();
+			int i = 0;
+			for (Object object : collection) {
+				if (i++ == index)
+					copiedObjects.add(value);
+				else
+					copiedObjects.add(object);
+			}
+		}
+		return copiedObjects;
+	}
+
+	private Object setValueInArray(Object array, AttributeDetail attribute, Object value) {
+		if (attribute.getIndex() == -1) {
+			int count = Array.getLength(array);
+			for (int i = 0; i < count; ++i) {
+				Array.set(array, i, value);
+			}
+		} else {
+			int index = attribute.getIndex();
+			Array.set(array, index, value);
+		}
+		return array;
 	}
 
 	protected Method getGetterMethod(Class<? extends Object> elementClass, String attribute)

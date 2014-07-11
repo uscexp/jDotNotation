@@ -1,12 +1,12 @@
 /*
- * ----------------------------------------------------------------------------
- * Copyright 2009 - 2014 by PostFinance AG - all rights reserved
- * ----------------------------------------------------------------------------
- */
-/*
  * (C) 2014 haui
  */
 package haui.dotnotation.testclasses;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.TreeSet;
 
 /**
  * @author haui
@@ -17,6 +17,8 @@ public class SimpleChildLevel3Class {
 	private String simpleString;
 	private int primitiveInt;
 	private int[] privatePrimitiveIntArray;
+	private List<String> privateStringList;
+	private Collection<String> stringCollection;
 
 	public SimpleChildLevel3Class() {
 		super();
@@ -26,6 +28,14 @@ public class SimpleChildLevel3Class {
 		privatePrimitiveIntArray[0] = 1;
 		privatePrimitiveIntArray[1] = 2;
 		privatePrimitiveIntArray[2] = 3;
+		privateStringList = new ArrayList<>();
+		privateStringList.add("a");
+		privateStringList.add("b");
+		privateStringList.add("c");
+		stringCollection = new TreeSet<>();
+		stringCollection.add("a");
+		stringCollection.add("b");
+		stringCollection.add("c");
 	}
 	public String getSimpleString() {
 		return simpleString;
@@ -38,5 +48,11 @@ public class SimpleChildLevel3Class {
 	}
 	public void setPrimitiveInt(int primitiveInt) {
 		this.primitiveInt = primitiveInt;
+	}
+	public Collection<String> getStringCollection() {
+		return stringCollection;
+	}
+	public void setStringCollection(Collection<String> stringCollection) {
+		this.stringCollection = stringCollection;
 	}
 }
