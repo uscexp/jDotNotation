@@ -1,7 +1,7 @@
 /*
- * (C) 2014 haui
+ * Copyright (C) 2014 by haui - all rights reserved
  */
-package haui.dotnotation.exception;
+package com.github.uscexp.dotnotation.exception;
 
 /**
  * @author haui

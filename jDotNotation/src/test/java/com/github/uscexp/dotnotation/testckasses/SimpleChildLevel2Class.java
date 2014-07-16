@@ -1,12 +1,7 @@
 /*
- * ----------------------------------------------------------------------------
- * Copyright 2009 - 2014 by PostFinance AG - all rights reserved
- * ----------------------------------------------------------------------------
+ * Copyright (C) 2014 by haui - all rights reserved
  */
-/*
- * (C) 2014 haui
- */
-package haui.dotnotation.testclasses;
+package com.github.uscexp.dotnotation.testckasses;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,6 +13,7 @@ import java.util.List;
 public class SimpleChildLevel2Class {
 
 	private SimpleChildLevel3Class simpleChildLevel3Class;
+	private SimpleChildLevel3Class simpleChildLevel3Class2;
 	private List<ArrayChildLevel3Class> arrayChildLevel3Classes;
 	private String simpleString;
 	private int primitiveInt;
@@ -54,5 +50,12 @@ public class SimpleChildLevel2Class {
 	}
 	public void setPrimitiveInt(int primitiveInt) {
 		this.primitiveInt = primitiveInt;
+	}
+	public SimpleChildLevel3Class getSimpleChildLevel3Class2() {
+		return simpleChildLevel3Class2;
+	}
+	public void setSimpleChildLevel3Class2(
+			SimpleChildLevel3Class simpleChildLevel3Class2) {
+		this.simpleChildLevel3Class2 = simpleChildLevel3Class2;
 	}
 }

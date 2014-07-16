@@ -1,8 +1,15 @@
-package haui.dotnotation;
+/*
+ * Copyright (C) 2014 by haui - all rights reserved
+ */
+package com.github.uscexp.dotnotation;
 
 import org.junit.Assert;
 import org.junit.Test;
 
+/**
+ * @author eisenhauera
+ *
+ */
 public class AttributeDetailTest {
 
 	@Test

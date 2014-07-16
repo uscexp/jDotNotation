@@ -1,12 +1,7 @@
 /*
- * ----------------------------------------------------------------------------
- * Copyright 2009 - 2014 by PostFinance AG - all rights reserved
- * ----------------------------------------------------------------------------
+ * Copyright (C) 2014 by haui - all rights reserved
  */
-/*
- * (C) 2014 haui
- */
-package haui.dotnotation.testclasses;
+package com.github.uscexp.dotnotation.testckasses;
 
 import java.util.ArrayList;
 import java.util.List;
