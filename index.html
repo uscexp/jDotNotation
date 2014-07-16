@@ -62,13 +62,13 @@ So if you set a value at index 0 and later you want to access it, it is very pro
 </ul><h2>
 <a name="example" class="anchor" href="#example"><span class="octicon octicon-link"></span></a>Example</h2>
 
-<pre><code>`...
-DotNotationAccessor dotNotationAccessorSUT = new DotNotationAccessor(true, false, false);
-RootClass rootClass = new RootClass();
-String attributePath = "simpleChildLevel1Class.simpleChildLevel2Class.simpleChildLevel3Class.simpleString";
+<pre><code>`...`
+`DotNotationAccessor dotNotationAccessorSUT = new DotNotationAccessor(true, false, false);`
+`RootClass rootClass = new RootClass();`
+`String attributePath = "simpleChildLevel1Class.simpleChildLevel2Class.simpleChildLevel3Class.simpleString";`
 
-Object result = dotNotationAccessorSUT.getAttribute(rootClass, attributePath);
-...`
+`Object result = dotNotationAccessorSUT.getAttribute(rootClass, attributePath);`
+`...`
 </code></pre>
 
 <p>First it creates an instance of <code>DotNotationAccessor</code> only permitting accessing the attributes via getters and setters.
