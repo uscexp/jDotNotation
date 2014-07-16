@@ -42,7 +42,7 @@
 <ul>
 <li>accessing simple attribues via dot notation.</li>
 <li>accessing array/collection type attributes via index.</li>
-<li>accessing attributes after array/collection type attributes without given index returns an array with all attribute values. e.g. attrib1.arrayAttrib2.attrib3 - returns an array with all values of <code>attrib3</code>.</li>
+<li>accessing attributes after array/collection type attributes without given index returns an array with all attribute values. e.g. <code>attrib1.arrayAttrib2.attrib3</code> - returns an array with all values of <code>attrib3</code>.</li>
 </ul><h2>
 <a name="description" class="anchor" href="#description"><span class="octicon octicon-link"></span></a>Description</h2>
 
@@ -50,10 +50,14 @@
 To access an attrubute value use the dot notation:</p>
 
 <ul>
-<li>level1.level2.text - accesses attrbute <code>level1</code> in root class, than accesses attribute <code>level2</code> in <code>level1</code> class and than accesses attrbute <code>text</code> in <code>level2</code> class.</li>
-<li>levels1.text - accesses all <code>text</code> attributes in collection or array <code>levels1</code> (returns an array).</li>
-<li>levels1[0].text - accesses attribute <code>text</code> in first (index 0) collection or array element of <code>levels1</code>.</li>
-<li>level1.texts[0] - accessses first (index 0) element of collection or array attribute <code>texts</code>.</li>
+<li>
+<code>level1.level2.text</code> - accesses attrbute <code>level1</code> in root class, than accesses attribute <code>level2</code> in <code>level1</code> class and than accesses attrbute <code>text</code> in <code>level2</code> class.</li>
+<li>
+<code>levels1.text</code> - accesses all <code>text</code> attributes in collection or array <code>levels1</code> (returns an array).</li>
+<li>
+<code>levels1[0].text</code> - accesses attribute <code>text</code> in first (index 0) collection or array element of <code>levels1</code>.</li>
+<li>
+<code>level1.texts[0]</code> - accessses first (index 0) element of collection or array attribute <code>texts</code>.</li>
 </ul><p><strong>Attention!</strong></p>
 
 <p>Accessing collections e.g. HashSets via index doesn't make alway sense, because the order of the set isn't fix.
@@ -62,13 +66,13 @@ So if you set a value at index 0 and later you want to access it, it is very pro
 <h2>
 <a name="example" class="anchor" href="#example"><span class="octicon octicon-link"></span></a>Example</h2>
 
-<div class="highlight highlight-java"><pre>    <span class="o">...</span>
-    <span class="n">DotNotationAccessor</span> <span class="n">dotNotationAccessorSUT</span> <span class="o">=</span> <span class="k">new</span> <span class="nf">DotNotationAccessor</span><span class="o">(</span><span class="kc">true</span><span class="o">,</span> <span class="kc">false</span><span class="o">,</span> <span class="kc">false</span><span class="o">);</span>
-    <span class="n">RootClass</span> <span class="n">rootClass</span> <span class="o">=</span> <span class="k">new</span> <span class="nf">RootClass</span><span class="o">();</span>
-    <span class="n">String</span> <span class="n">attributePath</span> <span class="o">=</span> <span class="s">"simpleChildLevel1Class.simpleChildLevel2Class.simpleChildLevel3Class.simpleString"</span><span class="o">;</span>
+<div class="highlight highlight-java"><pre><span class="o">...</span>
+<span class="n">DotNotationAccessor</span> <span class="n">dotNotationAccessor</span> <span class="o">=</span> <span class="k">new</span> <span class="nf">DotNotationAccessor</span><span class="o">(</span><span class="kc">true</span><span class="o">,</span> <span class="kc">false</span><span class="o">,</span> <span class="kc">false</span><span class="o">);</span>
+<span class="n">RootClass</span> <span class="n">rootClass</span> <span class="o">=</span> <span class="k">new</span> <span class="nf">RootClass</span><span class="o">();</span>
+<span class="n">String</span> <span class="n">attributePath</span> <span class="o">=</span> <span class="s">"simpleChildLevel1Class.simpleChildLevel2Class.simpleChildLevel3Class.simpleString"</span><span class="o">;</span>
 
-    <span class="n">Object</span> <span class="n">result</span> <span class="o">=</span> <span class="n">dotNotationAccessorSUT</span><span class="o">.</span><span class="na">getAttribute</span><span class="o">(</span><span class="n">rootClass</span><span class="o">,</span> <span class="n">attributePath</span><span class="o">);</span>
-    <span class="o">...</span>
+<span class="n">Object</span> <span class="n">result</span> <span class="o">=</span> <span class="n">dotNotationAccessor</span><span class="o">.</span><span class="na">getAttribute</span><span class="o">(</span><span class="n">rootClass</span><span class="o">,</span> <span class="n">attributePath</span><span class="o">);</span>
+<span class="o">...</span>
 </pre></div>
 
 <p>First it creates an instance of <code>DotNotationAccessor</code> only permitting accessing the attributes via getters and setters.
