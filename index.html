@@ -1,0 +1,87 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <title>jDotNotation by uscexp</title>
+
+    <link rel="stylesheet" href="stylesheets/styles.css">
+    <link rel="stylesheet" href="stylesheets/pygment_trac.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <div class="wrapper">
+      <header>
+        <h1>jDotNotation</h1>
+        <p>Java library to access class attributes via dot notation.</p>
+
+        <p class="view"><a href="https://github.com/uscexp/jDotNotation">View the Project on GitHub <small>uscexp/jDotNotation</small></a></p>
+
+
+        <ul>
+          <li><a href="https://github.com/uscexp/jDotNotation/zipball/master">Download <strong>ZIP File</strong></a></li>
+          <li><a href="https://github.com/uscexp/jDotNotation/tarball/master">Download <strong>TAR Ball</strong></a></li>
+          <li><a href="https://github.com/uscexp/jDotNotation">View On <strong>GitHub</strong></a></li>
+        </ul>
+      </header>
+      <section>
+        <h1>
+<a name="jdotnotation" class="anchor" href="#jdotnotation"><span class="octicon octicon-link"></span></a>jDotNotation</h1>
+
+<h2>
+<a name="introduction" class="anchor" href="#introduction"><span class="octicon octicon-link"></span></a>Introduction</h2>
+
+<p>Java library to access class attributes via dot notation.</p>
+
+<h2>
+<a name="features" class="anchor" href="#features"><span class="octicon octicon-link"></span></a>Features:</h2>
+
+<ul>
+<li>accessing simple attribues via dot notation.</li>
+<li>accessing array/collection type attributes via index.</li>
+<li>accessing attributes after array/collection type attributes without given index returns an array with all attribute values. e.g. attrib1.arrayAttrib2.attrib3 - returns an array with all values of <code>attrib3</code>.</li>
+</ul><h2>
+<a name="description" class="anchor" href="#description"><span class="octicon octicon-link"></span></a>Description</h2>
+
+<p>With this library one can access values of attributes via a defined path from a root element.
+To access an attrubute value use the dot notation:</p>
+
+<ul>
+<li>level1.level2.text - accesses attrbute <code>level1</code> in root class, than accesses attribute <code>level2</code> in <code>level1</code> class and than accesses attrbute <code>text</code> in <code>level2</code> class.</li>
+<li>levels1.text - accesses all <code>text</code> attributes in collection or array <code>levels1</code> (returns an array).</li>
+<li>levels1[0].text - accesses attribute <code>text</code> in first (index 0) collection or array element of <code>levels1</code>.</li>
+<li>level1.texts[0] - accessses first (index 0) element of collection or array attribute <code>texts</code>.
+***
+<strong>Attention!</strong>
+Accessing collections e.g. HashSets via index doesn't make alway sense, because the order of the set isn't fix.
+So if you set a value at index 0 and later you want to access it, it is very probable that you won't find it at index 0 anymore.
+***</li>
+</ul><h2>
+<a name="example" class="anchor" href="#example"><span class="octicon octicon-link"></span></a>Example</h2>
+
+<pre><code>`...
+DotNotationAccessor dotNotationAccessorSUT = new DotNotationAccessor(true, false, false);
+RootClass rootClass = new RootClass();
+String attributePath = "simpleChildLevel1Class.simpleChildLevel2Class.simpleChildLevel3Class.simpleString";
+
+Object result = dotNotationAccessorSUT.getAttribute(rootClass, attributePath);
+...`
+</code></pre>
+
+<p>First it creates an instance of <code>DotNotationAccessor</code> only permitting accessing the attributes via getters and setters.
+Than it creates <code>RootClass</code> which has a more or less complex class hierarchy. Afterwards the attribute path, from the root class to the final attribute one want to read or set, is defined. Than it is called the <code>getAttribute</code> method in the <code>DotNotationAccessor</code> instance to read the attribute <code>simpleString</code> and save it in the result variable.</p>
+
+<p>(C) 2014 by haui</p>
+      </section>
+      <footer>
+        <p>This project is maintained by <a href="https://github.com/uscexp">uscexp</a></p>
+        <p><small>Hosted on GitHub Pages &mdash; Theme by <a href="https://github.com/orderedlist">orderedlist</a></small></p>
+      </footer>
+    </div>
+    <script src="javascripts/scale.fix.js"></script>
+    
+  </body>
+</html>
