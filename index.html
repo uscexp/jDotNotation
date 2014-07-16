@@ -62,14 +62,14 @@ So if you set a value at index 0 and later you want to access it, it is very pro
 <h2>
 <a name="example" class="anchor" href="#example"><span class="octicon octicon-link"></span></a>Example</h2>
 
-<pre><code>`...`
-`DotNotationAccessor dotNotationAccessorSUT = new DotNotationAccessor(true, false, false);`
-`RootClass rootClass = new RootClass();`
-`String attributePath = "simpleChildLevel1Class.simpleChildLevel2Class.simpleChildLevel3Class.simpleString";`
+<div class="highlight highlight-java"><pre>    <span class="o">...</span>
+    <span class="n">DotNotationAccessor</span> <span class="n">dotNotationAccessorSUT</span> <span class="o">=</span> <span class="k">new</span> <span class="nf">DotNotationAccessor</span><span class="o">(</span><span class="kc">true</span><span class="o">,</span> <span class="kc">false</span><span class="o">,</span> <span class="kc">false</span><span class="o">);</span>
+    <span class="n">RootClass</span> <span class="n">rootClass</span> <span class="o">=</span> <span class="k">new</span> <span class="nf">RootClass</span><span class="o">();</span>
+    <span class="n">String</span> <span class="n">attributePath</span> <span class="o">=</span> <span class="s">"simpleChildLevel1Class.simpleChildLevel2Class.simpleChildLevel3Class.simpleString"</span><span class="o">;</span>
 
-`Object result = dotNotationAccessorSUT.getAttribute(rootClass, attributePath);`
-`...`
-</code></pre>
+    <span class="n">Object</span> <span class="n">result</span> <span class="o">=</span> <span class="n">dotNotationAccessorSUT</span><span class="o">.</span><span class="na">getAttribute</span><span class="o">(</span><span class="n">rootClass</span><span class="o">,</span> <span class="n">attributePath</span><span class="o">);</span>
+    <span class="o">...</span>
+</pre></div>
 
 <p>First it creates an instance of <code>DotNotationAccessor</code> only permitting accessing the attributes via getters and setters.
 Than it creates <code>RootClass</code> which has a more or less complex class hierarchy. Afterwards the attribute path, from the root class to the final attribute one want to read or set, is defined. Than it is called the <code>getAttribute</code> method in the <code>DotNotationAccessor</code> instance to read the attribute <code>simpleString</code> and save it in the result variable.</p>
