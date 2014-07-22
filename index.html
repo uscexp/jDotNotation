@@ -51,7 +51,7 @@ To access an attrubute value use the dot notation:</p>
 
 <ul>
 <li>
-<code>level1.level2.text</code> - accesses attrbute <code>level1</code> in root class, than accesses attribute <code>level2</code> in <code>level1</code> class and than accesses attrbute <code>text</code> in <code>level2</code> class.</li>
+<code>level1.level2.text</code> - accesses attrbute <code>level1</code> in root class, then accesses attribute <code>level2</code> in <code>level1</code> class and then accesses attrbute <code>text</code> in <code>level2</code> class.</li>
 <li>
 <code>levels1.text</code> - accesses all <code>text</code> attributes in collection or array <code>levels1</code> (returns an array).</li>
 <li>
@@ -76,7 +76,7 @@ So if you set a value at index 0 and later you want to access it, it is very pro
 </pre></div>
 
 <p>First it creates an instance of <code>DotNotationAccessor</code> only permitting accessing the attributes via getters and setters.
-Than it creates <code>RootClass</code> which has a more or less complex class hierarchy. Afterwards the attribute path, from the root class to the final attribute one want to read or set, is defined. Than it is called the <code>getAttribute</code> method in the <code>DotNotationAccessor</code> instance to read the attribute <code>simpleString</code> and save it in the result variable.</p>
+Then it creates <code>RootClass</code> which has a more or less complex class hierarchy. Afterwards the attribute path, from the root class to the final attribute one want to read or set, is defined. Then it is called the <code>getAttribute</code> method in the <code>DotNotationAccessor</code> instance to read the attribute <code>simpleString</code> and save it in the result variable.</p>
 
 <p>(C) 2014 by haui</p>
       </section>
