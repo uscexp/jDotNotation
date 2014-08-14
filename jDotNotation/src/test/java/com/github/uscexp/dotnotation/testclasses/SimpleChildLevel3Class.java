@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 2014 by haui - all rights reserved
  */
-package com.github.uscexp.dotnotation.testckasses;
+package com.github.uscexp.dotnotation.testclasses;
 
 import java.util.ArrayList;
 import java.util.Collection;

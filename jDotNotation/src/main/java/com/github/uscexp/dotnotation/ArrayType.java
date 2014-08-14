@@ -4,13 +4,14 @@
 package com.github.uscexp.dotnotation;
 
 import java.util.Collection;
+import java.util.Map;
 
 /**
  * @author haui
  *
  */
 public enum ArrayType {
-	ARRAY(true),COLLECTION(true),NONE(false);
+	ARRAY(true),COLLECTION(true),MAP(true),NONE(false);
 	
 	private boolean arrayType;
 	
@@ -30,6 +31,26 @@ public enum ArrayType {
 
 		case COLLECTION:
 			return (Object[])((Collection<Object>)object).toArray(new Object[((Collection<Object>)object).size()]);
+			
+		case MAP:
+			return (Object[])((Map<Object, Object>)object).values().toArray(new Object[((Map<Object, Object>)object).size()]);
+			
+		default:
+			return null;
+		}
+	}
+
+	@SuppressWarnings("unchecked")
+	public Map<?, ?> getMap(Object object) {
+		switch (this) {
+		case ARRAY:
+			return null;
+
+		case COLLECTION:
+			return null;
+			
+		case MAP:
+			return (Map<Object, Object>)object;
 			
 		default:
 			return null;
