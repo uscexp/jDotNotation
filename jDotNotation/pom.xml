@@ -4,7 +4,7 @@
 
 	<groupId>com.github.uscexp</groupId>
 	<artifactId>jDotNotation</artifactId>
-	<version>1.0.0</version>
+	<version>1.1.0</version>
 	<packaging>jar</packaging>
 
 	<name>Dot Notation Access Library</name>
@@ -148,6 +148,11 @@
 		</plugins>
 	</build>
 	<dependencies>
+		<dependency>
+			<groupId>com.github.uscexp</groupId>
+			<artifactId>grappa.extension</artifactId>
+			<version>0.1.0-Beta</version>
+		</dependency>
 		<dependency>
 			<groupId>org.apache.commons</groupId>
 			<artifactId>commons-lang3</artifactId>

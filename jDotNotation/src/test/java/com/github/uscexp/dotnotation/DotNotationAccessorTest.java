@@ -13,8 +13,10 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import com.github.uscexp.dotnotation.exception.AttributeAccessExeption;
-import com.github.uscexp.dotnotation.testckasses.RootClass;
-import com.github.uscexp.dotnotation.testckasses.SimpleChildLevel3Class;
+import com.github.uscexp.dotnotation.testclasses.ArrayChildLevel1Class;
+import com.github.uscexp.dotnotation.testclasses.KeyObject;
+import com.github.uscexp.dotnotation.testclasses.RootClass;
+import com.github.uscexp.dotnotation.testclasses.SimpleChildLevel3Class;
 
 /**
  * @author haui
@@ -93,6 +95,144 @@ public class DotNotationAccessorTest {
 			rootClass.getSimpleChildLevel1Class().getArrayChildLevel2Classes().get(0).getSimpleChildLevel3Class().getSimpleString());
 		Assert.assertEquals(value,
 			rootClass.getSimpleChildLevel1Class().getArrayChildLevel2Classes().get(1).getSimpleChildLevel3Class().getSimpleString());
+
+		Object result = dotNotationAccessorSUT.getAttribute(rootClass, attributePath);
+
+		Assert.assertNotNull(result);
+		Assert.assertEquals(value, result);
+	}
+
+	@Test
+	public void testSetAttributeAccessorsOnlyWithMaps()
+		throws Exception {
+		DotNotationAccessor dotNotationAccessorSUT = new DotNotationAccessor(true, false, false);
+		RootClass rootClass = new RootClass();
+		String attributePath = "mapChildLevel1Classes.arrayChildLevel2Classes.arrayChildLevel3Classes.simpleString";
+		String value = "New level 3";
+
+		dotNotationAccessorSUT.setAttribute(rootClass, attributePath, value);
+
+		Assert.assertEquals(value,
+			rootClass.getMapChildLevel1Classes().get("A").getArrayChildLevel2Classes().get(0).getArrayChildLevel3Classes().get(0)
+				.getSimpleString());
+		Assert.assertEquals(value,
+			rootClass.getMapChildLevel1Classes().get("B").getArrayChildLevel2Classes().get(1).getArrayChildLevel3Classes().get(1)
+				.getSimpleString());
+
+		Object result = dotNotationAccessorSUT.getAttribute(rootClass, attributePath);
+
+		Assert.assertNotNull(result);
+		Assert.assertTrue(result.getClass().isArray());
+		Object[] objects = ((Object[]) result);
+		Assert.assertEquals(8, objects.length);
+		for (int i = 0; i < objects.length; i++) {
+			Assert.assertEquals(value, objects[i]);
+		}
+	}
+
+	@Test
+	public void testSetAttributeAccessorsOnlyWithMapsAndKeyObjects()
+		throws Exception {
+		DotNotationAccessor dotNotationAccessorSUT = new DotNotationAccessor(true, false, false);
+		RootClass rootClass = new RootClass();
+		String attributePath = "mapKeyChildLevel1Classes.arrayChildLevel2Classes.arrayChildLevel3Classes.simpleString";
+		String value = "New level 3";
+
+		dotNotationAccessorSUT.setAttribute(rootClass, attributePath, value);
+
+		Assert.assertEquals(value,
+			rootClass.getMapKeyChildLevel1Classes().get(new KeyObject(1, "A")).getArrayChildLevel2Classes().get(0).getArrayChildLevel3Classes().get(0)
+				.getSimpleString());
+		Assert.assertEquals(value,
+			rootClass.getMapKeyChildLevel1Classes().get(new KeyObject(2, "B")).getArrayChildLevel2Classes().get(1).getArrayChildLevel3Classes().get(1)
+				.getSimpleString());
+
+		Object result = dotNotationAccessorSUT.getAttribute(rootClass, attributePath);
+
+		Assert.assertNotNull(result);
+		Assert.assertTrue(result.getClass().isArray());
+		Object[] objects = ((Object[]) result);
+		Assert.assertEquals(8, objects.length);
+		for (int i = 0; i < objects.length; i++) {
+			Assert.assertEquals(value, objects[i]);
+		}
+	}
+
+	@Test
+	public void testSetAttributeAccessorsOnlyWithMapsAndKeyAccess()
+		throws Exception {
+		DotNotationAccessor dotNotationAccessorSUT = new DotNotationAccessor(true, false, false);
+		RootClass rootClass = new RootClass();
+		String attributePath = "mapChildLevel1Classes['B'].arrayChildLevel2Classes[1].arrayChildLevel3Classes[1].simpleString";
+		String value = "New level 3";
+
+		dotNotationAccessorSUT.setAttribute(rootClass, attributePath, value);
+
+		Assert.assertEquals(value,
+			rootClass.getMapChildLevel1Classes().get("B").getArrayChildLevel2Classes().get(1).getArrayChildLevel3Classes().get(1)
+				.getSimpleString());
+
+		Object result = dotNotationAccessorSUT.getAttribute(rootClass, attributePath);
+
+		Assert.assertNotNull(result);
+		Assert.assertEquals(value, result);
+	}
+
+	@Test
+	public void testSetAttributeAccessorsOnlyWithMapsAndKeyObjectsAndKeyAccess()
+		throws Exception {
+		DotNotationAccessor dotNotationAccessorSUT = new DotNotationAccessor(true, false, false);
+		RootClass rootClass = new RootClass();
+		String attributePath = "mapKeyChildLevel1Classes[com.github.uscexp.dotnotation.testclasses.KeyObject(2,B)].arrayChildLevel2Classes[1].arrayChildLevel3Classes[1].simpleString";
+		String value = "New level 3";
+
+		dotNotationAccessorSUT.setAttribute(rootClass, attributePath, value);
+
+		Assert.assertEquals(value,
+			rootClass.getMapKeyChildLevel1Classes().get(new KeyObject(2, "B")).getArrayChildLevel2Classes().get(1).getArrayChildLevel3Classes().get(1)
+				.getSimpleString());
+
+		Object result = dotNotationAccessorSUT.getAttribute(rootClass, attributePath);
+
+		Assert.assertNotNull(result);
+		Assert.assertEquals(value, result);
+	}
+
+	@Test
+	public void testSetAttributeAccessorsOnlyWithMapsAndKeyObjectsAndKeyAccessAtEnd()
+		throws Exception {
+		DotNotationAccessor dotNotationAccessorSUT = new DotNotationAccessor(true, false, false);
+		RootClass rootClass = new RootClass();
+		String attributePath = "mapKeyChildLevel1Classes[com.github.uscexp.dotnotation.testclasses.KeyObject(2,B)]";
+		ArrayChildLevel1Class value = new ArrayChildLevel1Class();
+		String simpleString = "testString";
+		value.setSimpleString(simpleString);
+
+		dotNotationAccessorSUT.setAttribute(rootClass, attributePath, value);
+
+		Assert.assertEquals(value,
+			rootClass.getMapKeyChildLevel1Classes().get(new KeyObject(2, "B")));
+
+		Object result = dotNotationAccessorSUT.getAttribute(rootClass, attributePath);
+
+		Assert.assertNotNull(result);
+		Assert.assertEquals(value, result);
+	}
+
+	@Test
+	public void testSetAttributeAccessorsOnlyWithMapsAndKeyObjectsAndIndexAccessAtEnd()
+		throws Exception {
+		DotNotationAccessor dotNotationAccessorSUT = new DotNotationAccessor(true, false, false);
+		RootClass rootClass = new RootClass();
+		String attributePath = "mapKeyChildLevel1Classes[1]";
+		ArrayChildLevel1Class value = new ArrayChildLevel1Class();
+		String simpleString = "testString";
+		value.setSimpleString(simpleString);
+
+		dotNotationAccessorSUT.setAttribute(rootClass, attributePath, value);
+
+		Assert.assertEquals(value,
+			rootClass.getMapKeyChildLevel1Classes().get(new KeyObject(2, "B")));
 
 		Object result = dotNotationAccessorSUT.getAttribute(rootClass, attributePath);
 
