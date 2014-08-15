@@ -13,10 +13,24 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Date;
 import java.util.List;
-import java.util.StringTokenizer;
+import java.util.Map;
+import java.util.Map.Entry;
+
+import org.parboiled.Parboiled;
+import org.parboiled.errors.ErrorUtils;
+import org.parboiled.parserunners.RecoveringParseRunner;
+import org.parboiled.support.ParsingResult;
 
 import com.github.uscexp.dotnotation.exception.AttributeAccessExeption;
+import com.github.uscexp.dotnotation.parser.attributedetail.AttributeDetailInterpreterResult;
+import com.github.uscexp.dotnotation.parser.attributedetail.AttributeDetailParser;
+import com.github.uscexp.dotnotation.parser.attributepath.AttributePathInterpreterResult;
+import com.github.uscexp.dotnotation.parser.attributepath.AttributePathParser;
+import com.github.uscexp.grappa.extension.exception.AstInterpreterException;
+import com.github.uscexp.grappa.extension.interpreter.AstInterpreter;
+import com.github.uscexp.grappa.extension.interpreter.ProcessStore;
 
 /**
  * With this class one can access values of attributes via a defined path from a root element.
@@ -104,17 +118,41 @@ public class DotNotationAccessor {
 		AttributeDetail[] attributes = null;
 		int i = 0;
 		try {
-			StringTokenizer stringTokenizer = new StringTokenizer(attributePath, ".", false);
-			attributes = new AttributeDetail[stringTokenizer.countTokens()];
-			while (stringTokenizer.hasMoreTokens()) {
-				attributes[i++] = new AttributeDetail(stringTokenizer.nextToken());
+			AttributePathInterpreterResult attributePathInterpreterResult = runInterpreter(attributePath);
+			attributes = new AttributeDetail[attributePathInterpreterResult.getAttributeDetailInterpreterResults().size()];
+			for (AttributeDetailInterpreterResult attributeDetailInterpreterResult : attributePathInterpreterResult.getAttributeDetailInterpreterResults()) {
+				attributes[i++] = new AttributeDetail(attributeDetailInterpreterResult);
 			}
 			result = accessAttribute(rootElement, attributes, 0, value, accessorType);
-		} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException | IntrospectionException |
-				InstantiationException e) {
+		} catch (AstInterpreterException | ReflectiveOperationException | IllegalArgumentException | IntrospectionException e) {
 			throw new AttributeAccessExeption(String.format("Error accessing attribute %s", attributes[i - 1]), e);
 		}
 		return result;
+	}
+
+	public static AttributePathInterpreterResult runInterpreter(String attributePath)
+			throws AttributeAccessExeption, AstInterpreterException {
+		AttributePathParser attributePathParser = Parboiled.createParser(AttributePathParser.class);
+		
+		RecoveringParseRunner<AttributePathParser> recoveringParseRunner = new RecoveringParseRunner<>(attributePathParser.attributePath());
+		
+		ParsingResult<AttributePathParser> parsingResult = recoveringParseRunner.run(attributePath);
+		
+		if(parsingResult.hasErrors()) {
+			throw new AttributeAccessExeption(String.format("AttributePath parse error(s): %s", ErrorUtils.printParseErrors(parsingResult)));
+		}
+		
+		AstInterpreter<String> attributePathInterpreter = new AstInterpreter<>();
+		Long id = new Date().getTime();
+		ProcessStore<String> processStore = ProcessStore.getInstance(id);
+		// set the result object
+		processStore.setNewVariable(AttributePathParser.ATTRIBUTE_PATH_INTERPRETER_RESULT, new AttributePathInterpreterResult());
+		processStore.setNewVariable(AttributeDetailParser.ATTRIBUTE_DETAIL_INTERPRETER_RESULT, new AttributeDetailInterpreterResult());
+		attributePathInterpreter.execute(attributePathParser.getClass(), parsingResult, id);
+		
+		AttributePathInterpreterResult attributePathInterpreterResult = (AttributePathInterpreterResult) processStore.getVariable(AttributePathParser.ATTRIBUTE_PATH_INTERPRETER_RESULT);
+		attributePathInterpreter.cleanUp(id);
+		return attributePathInterpreterResult;
 	}
 
 	protected Object accessAttribute(Object element, AttributeDetail[] attributes, int attributeIndex, Object value,
@@ -197,9 +235,14 @@ public class DotNotationAccessor {
 				return null;
 			}
 			ArrayType arrayType = getArrayType(nextElement);
-			if (arrayType.isArrayType() && (attribute.getIndex() > -1)) {
-				nextElement = arrayType.getArray(nextElement)[attribute.getIndex()];
-				arrayType = ArrayType.NONE;
+			if (arrayType.isArrayType()) {
+				if(attribute.getIndex() > -1) {
+					nextElement = arrayType.getArray(nextElement)[attribute.getIndex()];
+					arrayType = ArrayType.NONE;
+				} else if (attribute.getMapKey() != null) {
+					nextElement = arrayType.getMap(nextElement).get(attribute.getMapKey());
+					arrayType = ArrayType.NONE;
+				}
 			}
 			result = accessAttribute(nextElement, attributes, nextIndex, value, accessorType);
 		}
@@ -214,6 +257,8 @@ public class DotNotationAccessor {
 			result = ArrayType.ARRAY;
 		} else if (element instanceof Collection<?>) {
 			result = ArrayType.COLLECTION;
+		} else if (element instanceof Map<?, ?>) {
+			result = ArrayType.MAP;
 		} else {
 			result = ArrayType.NONE;
 		}
@@ -225,7 +270,7 @@ public class DotNotationAccessor {
 		Object result = null;
 		Method method = getGetterMethod(element.getClass(), attribute.getName());
 		if (method != null) {
-			result = method.invoke(element, null);
+			result = method.invoke(element, (Object[])null);
 		} else if (!resolveAttributesViaAccessorsOnly) {
 			Field field = getDeclaredField(element.getClass(), attribute.getName());
 
@@ -233,7 +278,7 @@ public class DotNotationAccessor {
 				result = getValue(element, field);
 			}
 		}
-		if (attribute.isArrayType() && (attribute.getIndex() != -1)) {
+		if ((attribute.isArrayType() || attribute.isMapType()) && (attribute.getIndex() != -1)) {
 			ArrayType arrayType = getArrayType(result);
 
 			switch (arrayType) {
@@ -251,7 +296,25 @@ public class DotNotationAccessor {
 						}
 					}
 					break;
+					
+			case MAP:
+				index = attribute.getIndex();
+				i = 0;
+				for (Object object : ((Map<?, ?>) result).values()) {
+					if (i++ == index) {
+						result = object;
+						break;
+					}
+				}
+				break;
+				
+			case NONE:
+				break;
+			default:
+				break;
 			}
+		} else if (attribute.isMapType() && attribute.getMapKey() != null) {
+			result = ((Map<?, ?>)result).get(attribute.getMapKey());
 		}
 		return result;
 	}
@@ -266,19 +329,12 @@ public class DotNotationAccessor {
 			throw new IllegalAccessException("Access via reflection was not permitted!");
 		}
 
-		if (!attribute.isArrayType()) {
-			if (method != null)
-				method.invoke(element, value);
-			else {
-				if (field != null)
-					setValue(element, field, value);
-			}
-		} else {
+		if (attribute.isArrayType() || attribute.isMapType()) {
 			Object result = null;
 
 			if (method != null) {
 				Method getMethod = getGetterMethod(element.getClass(), attribute.getName());
-				result = getMethod.invoke(element, null);
+				result = getMethod.invoke(element, (Object[])null);
 			} else {
 				if (field != null)
 					result = getValue(element, field);
@@ -294,9 +350,15 @@ public class DotNotationAccessor {
 				case COLLECTION:
 					result = setValueInCollection((Collection<?>) result, attribute, value);
 					break;
+					
+				case MAP:
+					result = setValueInMap((Map<?, ?>)result, attribute, value);
+					break;
 
 				case NONE:
 					break;
+			default:
+				break;
 			}
 			if (method != null)
 				method.invoke(element, result);
@@ -304,7 +366,40 @@ public class DotNotationAccessor {
 				if (field != null)
 					setValue(element, field, result);
 			}
+		} else if (!attribute.isArrayType() && !attribute.isMapType()) {
+			if (method != null)
+				method.invoke(element, value);
+			else {
+				if (field != null)
+					setValue(element, field, value);
+			}
 		}
+	}
+
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	private Object setValueInMap(Map<?, ?> map, AttributeDetail attribute, Object value)
+		throws InstantiationException, IllegalAccessException {
+		Map copiedObjects = (Map) map.getClass().newInstance();
+		if (attribute.getIndex() != -1) {
+			int index = attribute.getIndex();
+			int i = 0;
+			for (Entry entry : map.entrySet()) {
+				if (i++ == index)
+					copiedObjects.put(entry.getKey(), value);
+				else
+					copiedObjects.put(entry.getKey(), entry.getValue());
+			}
+		} else if (attribute.getMapKey() != null) {
+			for (Entry entry : map.entrySet()) {
+				copiedObjects.put(entry.getKey(), entry.getValue());
+			}
+			copiedObjects.put(attribute.getMapKey(), value);
+		}else if (attribute.getIndex() == -1) {
+			for (Entry entry : map.entrySet()) {
+				copiedObjects.put(entry.getKey(), value);
+			}
+		}
+		return copiedObjects;
 	}
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
