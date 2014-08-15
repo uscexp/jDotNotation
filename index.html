@@ -37,12 +37,18 @@
 <p>Java library to access class attributes via dot notation.</p>
 
 <h2>
+<a name="news" class="anchor" href="#news"><span class="octicon octicon-link"></span></a>News</h2>
+
+<p>15.Aug.2014: New release <a href="https://github.com/uscexp/jDotNotation/releases/tag/v1.1.0">v1.1.0</a> which adds the new map access feature.</p>
+
+<h2>
 <a name="features" class="anchor" href="#features"><span class="octicon octicon-link"></span></a>Features</h2>
 
 <ul>
 <li>accessing simple attribues via dot notation.</li>
 <li>accessing array/collection type attributes via index.</li>
 <li>accessing attributes after array/collection type attributes without given index returns an array with all attribute values. e.g. <code>attrib1.arrayAttrib2.attrib3</code> - returns an array with all values of <code>attrib3</code>.</li>
+<li>accessing map type attributes.</li>
 </ul><h2>
 <a name="description" class="anchor" href="#description"><span class="octicon octicon-link"></span></a>Description</h2>
 
@@ -57,7 +63,13 @@ To access an attrubute value use the dot notation:</p>
 <li>
 <code>levels1[0].text</code> - accesses attribute <code>text</code> in first (index 0) collection or array element of <code>levels1</code>.</li>
 <li>
-<code>level1.texts[0]</code> - accessses first (index 0) element of collection or array attribute <code>texts</code>.</li>
+<code>level1.texts[0]</code> - accessses first (index 0) element of collection or array or map attribute <code>texts</code>.</li>
+<li>
+<code>level1.textMap['key']</code> - accessses element of map attribute <code>textMap</code> via simple key (string) access (argument with single quote).</li>
+<li>
+<code>level1.textMap[your.domain.YourType(keyPart1, keyPart2)]</code> - accessses element of map attribute <code>textMap</code> via a constructor (with string arguments) which creates the key object to access the map (argument(s) without quotes).</li>
+<li>
+<code>level1.textMap[your.domain.YourFactory#factoryMethod(keyPart1, keyPart2)]</code> - accessses element of map attribute <code>textMap</code> via a factory method (with string arguments) which creates the key object to access the map (argument(s) without quotes).</li>
 </ul><p><strong>Attention!</strong></p>
 
 <p>Accessing collections e.g. HashSets via index doesn't make alway sense, because the order of the set isn't fix.
