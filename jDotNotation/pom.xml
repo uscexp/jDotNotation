@@ -151,7 +151,7 @@
 		<dependency>
 			<groupId>com.github.uscexp</groupId>
 			<artifactId>grappa.extension</artifactId>
-			<version>0.2.0-Beta</version>
+			<version>0.3.0</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.commons</groupId>
