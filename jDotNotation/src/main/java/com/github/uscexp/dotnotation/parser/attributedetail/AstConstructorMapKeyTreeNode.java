@@ -21,7 +21,7 @@ public class AstConstructorMapKeyTreeNode extends AstCommandTreeNode<String> {
 	}
 
 	@Override
-	protected void interpret(Long id) throws ReflectiveOperationException {
+	protected void interpretAfterChilds(Long id) throws ReflectiveOperationException {
 		ProcessStore<Object> processStore = ProcessStore.getInstance(id);
 		Stack<Object> stack = processStore.getStack();
 		AttributeDetailInterpreterResult attributeDetailInterpreterResult = (AttributeDetailInterpreterResult) processStore.getVariable(
@@ -35,6 +35,10 @@ public class AstConstructorMapKeyTreeNode extends AstCommandTreeNode<String> {
 			stringBuilder.append(stack.pop());
 		}
 		attributeDetailInterpreterResult.setConstructionClass(stringBuilder.toString());
+	}
+
+	@Override
+	protected void interpretBeforeChilds(Long id) throws Exception {
 	}
 
 }

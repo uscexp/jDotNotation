@@ -21,7 +21,7 @@ public class AstAttributeSimpleTreeNode extends AstCommandTreeNode<String> {
 	}
 
 	@Override
-	protected void interpret(Long id)
+	protected void interpretAfterChilds(Long id)
 		throws ReflectiveOperationException {
 		ProcessStore<Object> processStore = ProcessStore.getInstance(id);
 		Stack<Object> stack = processStore.getStack();
@@ -30,6 +30,10 @@ public class AstAttributeSimpleTreeNode extends AstCommandTreeNode<String> {
 		String name = (String) stack.pop();
 		attributeDetailInterpreterResult.setName(name);
 		attributeDetailInterpreterResult.setValue(value);
+	}
+
+	@Override
+	protected void interpretBeforeChilds(Long id) throws Exception {
 	}
 
 }

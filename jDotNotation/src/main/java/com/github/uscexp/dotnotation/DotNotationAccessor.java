@@ -134,6 +134,22 @@ public class DotNotationAccessor {
 			throws AttributeAccessExeption, AstInterpreterException {
 		AttributePathParser attributePathParser = Parboiled.createParser(AttributePathParser.class);
 		
+		ParsingResult<AttributePathParser> parsingResult = parseAttributePath(
+				attributePath, attributePathParser);
+		
+		AstInterpreter<String> attributePathInterpreter = new AstInterpreter<>();
+		Long id = new Date().getTime();
+		ProcessStore<String> processStore = prepareProcessStore(id);
+		attributePathInterpreter.interpretBackwardOrder(attributePathParser.getClass(), parsingResult, id);
+		
+		AttributePathInterpreterResult attributePathInterpreterResult = (AttributePathInterpreterResult) processStore.getVariable(AttributePathParser.ATTRIBUTE_PATH_INTERPRETER_RESULT);
+		attributePathInterpreter.cleanUp(id);
+		return attributePathInterpreterResult;
+	}
+
+	private static ParsingResult<AttributePathParser> parseAttributePath(
+			String attributePath, AttributePathParser attributePathParser)
+			throws AttributeAccessExeption {
 		RecoveringParseRunner<AttributePathParser> recoveringParseRunner = new RecoveringParseRunner<>(attributePathParser.attributePath());
 		
 		ParsingResult<AttributePathParser> parsingResult = recoveringParseRunner.run(attributePath);
@@ -141,18 +157,15 @@ public class DotNotationAccessor {
 		if(parsingResult.hasErrors()) {
 			throw new AttributeAccessExeption(String.format("AttributePath parse error(s): %s", ErrorUtils.printParseErrors(parsingResult)));
 		}
-		
-		AstInterpreter<String> attributePathInterpreter = new AstInterpreter<>();
-		Long id = new Date().getTime();
+		return parsingResult;
+	}
+
+	private static ProcessStore<String> prepareProcessStore(Long id) {
 		ProcessStore<String> processStore = ProcessStore.getInstance(id);
 		// set the result object
 		processStore.setNewVariable(AttributePathParser.ATTRIBUTE_PATH_INTERPRETER_RESULT, new AttributePathInterpreterResult());
 		processStore.setNewVariable(AttributeDetailParser.ATTRIBUTE_DETAIL_INTERPRETER_RESULT, new AttributeDetailInterpreterResult());
-		attributePathInterpreter.execute(attributePathParser.getClass(), parsingResult, id);
-		
-		AttributePathInterpreterResult attributePathInterpreterResult = (AttributePathInterpreterResult) processStore.getVariable(AttributePathParser.ATTRIBUTE_PATH_INTERPRETER_RESULT);
-		attributePathInterpreter.cleanUp(id);
-		return attributePathInterpreterResult;
+		return processStore;
 	}
 
 	protected Object accessAttribute(Object element, AttributeDetail[] attributes, int attributeIndex, Object value,
@@ -228,25 +241,33 @@ public class DotNotationAccessor {
 					break;
 			}
 		} else {
-			Object nextElement = getAttributeValueInElement(element, attribute);
-			if (nextElement == null) {
-				if (throwExceptionOnNullValueInAttributePath)
-					throw new NullPointerException(String.format("Element %s is null!", attribute.getName()));
-				return null;
-			}
-			ArrayType arrayType = getArrayType(nextElement);
-			if (arrayType.isArrayType()) {
-				if(attribute.getIndex() > -1) {
-					nextElement = arrayType.getArray(nextElement)[attribute.getIndex()];
-					arrayType = ArrayType.NONE;
-				} else if (attribute.getMapKey() != null) {
-					nextElement = arrayType.getMap(nextElement).get(attribute.getMapKey());
-					arrayType = ArrayType.NONE;
-				}
-			}
-			result = accessAttribute(nextElement, attributes, nextIndex, value, accessorType);
+			Object nextElement = getNextElement(element, attribute);
+			if(nextElement != null)
+				result = accessAttribute(nextElement, attributes, nextIndex, value, accessorType);
 		}
 		return result;
+	}
+
+	private Object getNextElement(Object element, AttributeDetail attribute)
+			throws IntrospectionException, IllegalAccessException,
+			InvocationTargetException {
+		Object nextElement = getAttributeValueInElement(element, attribute);
+		if (nextElement == null) {
+			if (throwExceptionOnNullValueInAttributePath)
+				throw new NullPointerException(String.format("Element %s is null!", attribute.getName()));
+			return null;
+		}
+		ArrayType arrayType = getArrayType(nextElement);
+		if (arrayType.isArrayType()) {
+			if(attribute.getIndex() > -1) {
+				nextElement = arrayType.getArray(nextElement)[attribute.getIndex()];
+				arrayType = ArrayType.NONE;
+			} else if (attribute.getMapKey() != null) {
+				nextElement = arrayType.getMap(nextElement).get(attribute.getMapKey());
+				arrayType = ArrayType.NONE;
+			}
+		}
+		return nextElement;
 	}
 
 	private ArrayType getArrayType(Object element) {
@@ -278,18 +299,25 @@ public class DotNotationAccessor {
 				result = getValue(element, field);
 			}
 		}
+		result = readFromArrayTypeOrMapType(attribute, result);
+		return result;
+	}
+
+	private Object readFromArrayTypeOrMapType(AttributeDetail attribute,
+			Object value) {
+		Object result = value;
 		if ((attribute.isArrayType() || attribute.isMapType()) && (attribute.getIndex() != -1)) {
-			ArrayType arrayType = getArrayType(result);
+			ArrayType arrayType = getArrayType(value);
 
 			switch (arrayType) {
 				case ARRAY:
-					result = Array.get(result, attribute.getIndex());
+					result = Array.get(value, attribute.getIndex());
 					break;
 
 				case COLLECTION:
 					int index = attribute.getIndex();
 					int i = 0;
-					for (Object object : (Collection<?>) result) {
+					for (Object object : (Collection<?>) value) {
 						if (i++ == index) {
 							result = object;
 							break;
@@ -300,7 +328,7 @@ public class DotNotationAccessor {
 			case MAP:
 				index = attribute.getIndex();
 				i = 0;
-				for (Object object : ((Map<?, ?>) result).values()) {
+				for (Object object : ((Map<?, ?>) value).values()) {
 					if (i++ == index) {
 						result = object;
 						break;
@@ -314,7 +342,7 @@ public class DotNotationAccessor {
 				break;
 			}
 		} else if (attribute.isMapType() && attribute.getMapKey() != null) {
-			result = ((Map<?, ?>)result).get(attribute.getMapKey());
+			result = ((Map<?, ?>)value).get(attribute.getMapKey());
 		}
 		return result;
 	}
@@ -329,6 +357,13 @@ public class DotNotationAccessor {
 			throw new IllegalAccessException("Access via reflection was not permitted!");
 		}
 
+		writeToArrayTypeOrMapType(element, attribute, value, method, field);
+	}
+
+	private void writeToArrayTypeOrMapType(Object element,
+			AttributeDetail attribute, Object value, Method method, Field field)
+			throws IntrospectionException, IllegalAccessException,
+			InvocationTargetException, InstantiationException {
 		if (attribute.isArrayType() || attribute.isMapType()) {
 			Object result = null;
 

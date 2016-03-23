@@ -21,7 +21,11 @@ public class AstSimpleMapKeyTreeNode extends AstCommandTreeNode<String> {
 	}
 
 	@Override
-	protected void interpret(Long id) throws ReflectiveOperationException {
+	protected void interpretBeforeChilds(Long id) throws Exception {
+	}
+
+	@Override
+	protected void interpretAfterChilds(Long id) throws ReflectiveOperationException {
 		ProcessStore<Object> processStore = ProcessStore.getInstance(id);
 		Stack<Object> stack = processStore.getStack();
 		AttributeDetailInterpreterResult attributeDetailInterpreterResult = (AttributeDetailInterpreterResult) processStore.getVariable(

@@ -22,7 +22,7 @@ public class AstParameterListTreeNode extends AstCommandTreeNode<String> {
 	}
 
 	@Override
-	protected void interpret(Long id) throws ReflectiveOperationException {
+	protected void interpretAfterChilds(Long id) throws ReflectiveOperationException {
 		ProcessStore<Object> processStore = ProcessStore.getInstance(id);
 		Stack<Object> stack = processStore.getStack();
 		AttributeDetailInterpreterResult attributeDetailInterpreterResult = (AttributeDetailInterpreterResult) processStore.getVariable(
@@ -37,6 +37,10 @@ public class AstParameterListTreeNode extends AstCommandTreeNode<String> {
 		}
 		attributeDetailInterpreterResult.setParameters(parameters);
 		stack.clear();
+	}
+
+	@Override
+	protected void interpretBeforeChilds(Long id) throws Exception {
 	}
 
 }

@@ -50,7 +50,7 @@ public class AttributeDetailParserTest {
 		ProcessStore<String> processStore = ProcessStore.getInstance(id);
 		// set the result object
 		processStore.setNewVariable(AttributeDetailParser.ATTRIBUTE_DETAIL_INTERPRETER_RESULT, new AttributeDetailInterpreterResult());
-		attributePathInterpreter.execute(attributeDetailParser.getClass(), parsingResult, id);
+		attributePathInterpreter.interpretBackwardOrder(attributeDetailParser.getClass(), parsingResult, id);
 		
 		AttributeDetailInterpreterResult attributeDetailInterpreterResult = (AttributeDetailInterpreterResult) processStore.getVariable(AttributeDetailParser.ATTRIBUTE_DETAIL_INTERPRETER_RESULT);
 		attributePathInterpreter.cleanUp(id);

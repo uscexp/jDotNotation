@@ -23,7 +23,7 @@ public class AstFactoryMapKeyTreeNode extends AstCommandTreeNode<String> {
 	}
 
 	@Override
-	protected void interpret(Long id) throws ReflectiveOperationException {
+	protected void interpretAfterChilds(Long id) throws ReflectiveOperationException {
 		ProcessStore<Object> processStore = ProcessStore.getInstance(id);
 		Stack<Object> stack = processStore.getStack();
 		AttributeDetailInterpreterResult attributeDetailInterpreterResult = (AttributeDetailInterpreterResult) processStore.getVariable(
@@ -40,6 +40,10 @@ public class AstFactoryMapKeyTreeNode extends AstCommandTreeNode<String> {
 		}
 		String factoryMethod = (String) stack.pop();
 		attributeDetailInterpreterResult.setFactoryMethod(factoryMethod);
+	}
+
+	@Override
+	protected void interpretBeforeChilds(Long id) throws Exception {
 	}
 
 }

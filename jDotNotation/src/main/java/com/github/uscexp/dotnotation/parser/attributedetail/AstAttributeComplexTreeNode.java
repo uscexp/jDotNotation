@@ -21,7 +21,7 @@ public class AstAttributeComplexTreeNode extends AstCommandTreeNode<String> {
 	}
 
 	@Override
-	protected void interpret(Long id) throws ReflectiveOperationException {
+	protected void interpretAfterChilds(Long id) throws ReflectiveOperationException {
 		ProcessStore<Object> processStore = ProcessStore.getInstance(id);
 		Stack<Object> stack = processStore.getStack();
 		AttributeDetailInterpreterResult attributeDetailInterpreterResult = (AttributeDetailInterpreterResult) processStore.getVariable(
@@ -29,6 +29,10 @@ public class AstAttributeComplexTreeNode extends AstCommandTreeNode<String> {
 		String name = (String) stack.pop();
 		attributeDetailInterpreterResult.setName(name);
 		attributeDetailInterpreterResult.setValue(value);
+	}
+
+	@Override
+	protected void interpretBeforeChilds(Long id) throws Exception {
 	}
 
 }
