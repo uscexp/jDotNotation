@@ -6,8 +6,6 @@ package com.github.uscexp.dotnotation.parser.attributedetail;
 import java.util.Stack;
 import java.util.StringTokenizer;
 
-import org.parboiled.Node;
-
 import com.github.uscexp.grappa.extension.interpreter.ProcessStore;
 import com.github.uscexp.grappa.extension.nodes.AstCommandTreeNode;
 
@@ -17,7 +15,7 @@ import com.github.uscexp.grappa.extension.nodes.AstCommandTreeNode;
  */
 public class AstParameterListTreeNode extends AstCommandTreeNode<String> {
 
-	public AstParameterListTreeNode(Node<?> node, String value) {
+	public AstParameterListTreeNode(String node, String value) {
 		super(node, value);
 	}
 

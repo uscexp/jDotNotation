@@ -3,8 +3,6 @@
  */
 package com.github.uscexp.dotnotation.parser.attributedetail;
 
-import org.parboiled.Node;
-
 import com.github.uscexp.dotnotation.parser.attributepath.AttributePathInterpreterResult;
 import com.github.uscexp.dotnotation.parser.attributepath.AttributePathParser;
 import com.github.uscexp.grappa.extension.interpreter.ProcessStore;
@@ -16,7 +14,7 @@ import com.github.uscexp.grappa.extension.nodes.AstCommandTreeNode;
  */
 public class AstAttributeTreeNode extends AstCommandTreeNode<String> {
 
-	public AstAttributeTreeNode(Node<?> node, String value) {
+	public AstAttributeTreeNode(String node, String value) {
 		super(node, value);
 	}
 

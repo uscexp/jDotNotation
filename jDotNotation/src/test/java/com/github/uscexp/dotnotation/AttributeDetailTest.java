@@ -9,6 +9,7 @@ import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
+import com.github.fge.grappa.exceptions.InvalidGrammarException;
 import com.github.uscexp.dotnotation.exception.AttributeAccessExeption;
 import com.github.uscexp.dotnotation.parser.attributepath.AttributePathInterpreterResult;
 import com.github.uscexp.grappa.extension.exception.AstInterpreterException;
@@ -88,7 +89,7 @@ public class AttributeDetailTest {
 		assertEquals(Integer.valueOf(1), attributeDetail.getMapKey());
 	}
 
-	@Test(expected = AttributeAccessExeption.class)
+	@Test(expected = InvalidGrammarException.class)
 	public void testAttributeDetailAccessMapWithErrorOnFactoryMethod() throws Exception {
 		String attribute = "attribute";
 		constructAttributeDetail(attribute + "[java.lang.Integer#valueOf#bla(1)]");
@@ -142,19 +143,19 @@ public class AttributeDetailTest {
 	}
 
 
-	@Test(expected = AttributeAccessExeption.class)
+	@Test(expected = InvalidGrammarException.class)
 	public void testAttributeDetailError() throws Exception {
 		String attribute = "attribute";
 		constructAttributeDetail(attribute + "[a]");
 	}
 
-	@Test(expected = AttributeAccessExeption.class)
+	@Test(expected = InvalidGrammarException.class)
 	public void testAttributeDetailError1() throws Exception {
 		String attribute = "attribute";
 		constructAttributeDetail(attribute + "[2");
 	}
 
-	@Test(expected = AttributeAccessExeption.class)
+	@Test(expected = InvalidGrammarException.class)
 	public void testAttributeDetailError2() throws Exception {
 		String attribute = "attribute";
 		constructAttributeDetail(attribute + "][");

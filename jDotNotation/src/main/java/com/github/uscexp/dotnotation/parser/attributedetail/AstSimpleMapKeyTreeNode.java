@@ -5,8 +5,6 @@ package com.github.uscexp.dotnotation.parser.attributedetail;
 
 import java.util.Stack;
 
-import org.parboiled.Node;
-
 import com.github.uscexp.grappa.extension.interpreter.ProcessStore;
 import com.github.uscexp.grappa.extension.nodes.AstCommandTreeNode;
 
@@ -16,7 +14,7 @@ import com.github.uscexp.grappa.extension.nodes.AstCommandTreeNode;
  */
 public class AstSimpleMapKeyTreeNode extends AstCommandTreeNode<String> {
 
-	public AstSimpleMapKeyTreeNode(Node<?> node, String value) {
+	public AstSimpleMapKeyTreeNode(String node, String value) {
 		super(node, value);
 	}
 

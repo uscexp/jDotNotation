@@ -18,11 +18,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.parboiled.Parboiled;
-import org.parboiled.errors.ErrorUtils;
-import org.parboiled.parserunners.RecoveringParseRunner;
-import org.parboiled.support.ParsingResult;
-
+import com.github.fge.grappa.Grappa;
 import com.github.uscexp.dotnotation.exception.AttributeAccessExeption;
 import com.github.uscexp.dotnotation.parser.attributedetail.AttributeDetailInterpreterResult;
 import com.github.uscexp.dotnotation.parser.attributedetail.AttributeDetailParser;
@@ -31,6 +27,8 @@ import com.github.uscexp.dotnotation.parser.attributepath.AttributePathParser;
 import com.github.uscexp.grappa.extension.exception.AstInterpreterException;
 import com.github.uscexp.grappa.extension.interpreter.AstInterpreter;
 import com.github.uscexp.grappa.extension.interpreter.ProcessStore;
+import com.github.uscexp.grappa.extension.nodes.AstTreeNode;
+import com.github.uscexp.grappa.extension.parser.Parser;
 
 /**
  * With this class one can access values of attributes via a defined path from a root element.
@@ -132,32 +130,18 @@ public class DotNotationAccessor {
 
 	public static AttributePathInterpreterResult runInterpreter(String attributePath)
 			throws AttributeAccessExeption, AstInterpreterException {
-		AttributePathParser attributePathParser = Parboiled.createParser(AttributePathParser.class);
+		AttributePathParser attributePathParser = Grappa.createParser(AttributePathParser.class);
 		
-		ParsingResult<AttributePathParser> parsingResult = parseAttributePath(
-				attributePath, attributePathParser);
+		AstTreeNode<String> rootNode = Parser.parseInput(AttributePathParser.class, attributePathParser.attributePath(), attributePath, true);
 		
 		AstInterpreter<String> attributePathInterpreter = new AstInterpreter<>();
 		Long id = new Date().getTime();
 		ProcessStore<String> processStore = prepareProcessStore(id);
-		attributePathInterpreter.interpretBackwardOrder(attributePathParser.getClass(), parsingResult, id);
+		attributePathInterpreter.interpretBackwardOrder(AttributePathParser.class, rootNode, id);
 		
 		AttributePathInterpreterResult attributePathInterpreterResult = (AttributePathInterpreterResult) processStore.getVariable(AttributePathParser.ATTRIBUTE_PATH_INTERPRETER_RESULT);
 		attributePathInterpreter.cleanUp(id);
 		return attributePathInterpreterResult;
-	}
-
-	private static ParsingResult<AttributePathParser> parseAttributePath(
-			String attributePath, AttributePathParser attributePathParser)
-			throws AttributeAccessExeption {
-		RecoveringParseRunner<AttributePathParser> recoveringParseRunner = new RecoveringParseRunner<>(attributePathParser.attributePath());
-		
-		ParsingResult<AttributePathParser> parsingResult = recoveringParseRunner.run(attributePath);
-		
-		if(parsingResult.hasErrors()) {
-			throw new AttributeAccessExeption(String.format("AttributePath parse error(s): %s", ErrorUtils.printParseErrors(parsingResult)));
-		}
-		return parsingResult;
 	}
 
 	private static ProcessStore<String> prepareProcessStore(Long id) {
