@@ -17,12 +17,9 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.UUID;
 
-import org.parboiled.Parboiled;
-import org.parboiled.errors.ErrorUtils;
-import org.parboiled.parserunners.RecoveringParseRunner;
-import org.parboiled.support.ParsingResult;
-
+import com.github.fge.grappa.Grappa;
 import com.github.uscexp.dotnotation.exception.AttributeAccessExeption;
 import com.github.uscexp.dotnotation.parser.attributedetail.AttributeDetailInterpreterResult;
 import com.github.uscexp.dotnotation.parser.attributedetail.AttributeDetailParser;
@@ -31,27 +28,37 @@ import com.github.uscexp.dotnotation.parser.attributepath.AttributePathParser;
 import com.github.uscexp.grappa.extension.exception.AstInterpreterException;
 import com.github.uscexp.grappa.extension.interpreter.AstInterpreter;
 import com.github.uscexp.grappa.extension.interpreter.ProcessStore;
+import com.github.uscexp.grappa.extension.nodes.AstTreeNode;
+import com.github.uscexp.grappa.extension.parser.Parser;
 
 /**
- * With this class one can access values of attributes via a defined path from a root element.
+ * With this class one can access values of attributes via a defined path from a
+ * root element.
  * <p>
  * To access an attrubute value use the dot notation:<br>
  * <dl>
  * <dt>level1.level2.text</dt>
- * <dd>accesses attrbute level1 in root class, than accesses attribute level2 in level1 class and than accesses attrbute text in level2 class.</dd>
+ * <dd>accesses attrbute level1 in root class, than accesses attribute level2 in
+ * level1 class and than accesses attrbute text in level2 class.</dd>
  * <dt>levels1.text</dt>
- * <dd>accesses all text attributes in collection or array levels1 (returns an array).</dd>
+ * <dd>accesses all text attributes in collection or array levels1 (returns an
+ * array).</dd>
  * <dt>levels1[0].text</dt>
- * <dd>accesses attribute text in first (index 0) collection or array element of levels1</dd>
+ * <dd>accesses attribute text in first (index 0) collection or array element of
+ * levels1</dd>
  * <dt>level1.texts[0]</dt>
- * <dd>accessses first (index 0) element of collection or array attribute texts<dd>
+ * <dd>accessses first (index 0) element of collection or array attribute texts
+ * <dd>
  * </dl>
  * </p>
  * <b>Attention!</b>
  * <p>
- * Accessing collections e.g. HashSets via index doesn't make alway sense, because the order of the set isn't fix.
- * So if you set a value at index 0 and later you want to access it, it is very probable that you won't find it at index 0 anymore.
+ * Accessing collections e.g. HashSets via index doesn't make alway sense,
+ * because the order of the set isn't fix. So if you set a value at index 0 and
+ * later you want to access it, it is very probable that you won't find it at
+ * index 0 anymore.
  * </p>
+ * 
  * @author haui
  *
  */
@@ -62,9 +69,10 @@ public class DotNotationAccessor {
 	private boolean throwExceptionOnNullValueInAttributePath = true;
 
 	/**
-	 * Creates an {@link DotNotationAccessor} instance with default configuration:<br>
-	 * only resolves attributes via getters and setters, does not access private attributes
-	 * and throws exeptions on null values in attribute path.
+	 * Creates an {@link DotNotationAccessor} instance with default
+	 * configuration:<br>
+	 * only resolves attributes via getters and setters, does not access private
+	 * attributes and throws exeptions on null values in attribute path.
 	 */
 	public DotNotationAccessor() {
 		this(false, true, true);
@@ -73,9 +81,15 @@ public class DotNotationAccessor {
 	/**
 	 * Creates an {@link DotNotationAccessor} instance with given configuration.
 	 *
-	 * @param resolveAttributesViaAccessorsOnly if true, attributes will only be resolved via accessors (gertters/setters), else attributes will also be accessed via reflection.
-	 * @param accessPrivateAttributes if true, private attributes can be accessed, too.
-	 * @param throwExceptionOnNullValueInAttributePath if true, exceptions will be thrown if there are null values within the attribute path.
+	 * @param resolveAttributesViaAccessorsOnly
+	 *            if true, attributes will only be resolved via accessors
+	 *            (gertters/setters), else attributes will also be accessed via
+	 *            reflection.
+	 * @param accessPrivateAttributes
+	 *            if true, private attributes can be accessed, too.
+	 * @param throwExceptionOnNullValueInAttributePath
+	 *            if true, exceptions will be thrown if there are null values
+	 *            within the attribute path.
 	 */
 	public DotNotationAccessor(boolean resolveAttributesViaAccessorsOnly, boolean accessPrivateAttributes,
 			boolean throwExceptionOnNullValueInAttributePath) {
@@ -88,13 +102,16 @@ public class DotNotationAccessor {
 	/**
 	 * get the value/values of an attibute, defined via dot notation.
 	 *
-	 * @param rootElement root class instance to start the attribute path resolvation.
-	 * @param attributePath the attribute path (dot notation).
+	 * @param rootElement
+	 *            root class instance to start the attribute path resolvation.
+	 * @param attributePath
+	 *            the attribute path (dot notation).
 	 * @return the value/values of the final attribute in attribute path.
-	 * @throws AttributeAccessExeption on error
+	 * @throws AttributeAccessExeption
+	 *             on error
 	 */
 	public Object getAttribute(Object rootElement, String attributePath)
-		throws AttributeAccessExeption {
+			throws AttributeAccessExeption {
 		Object result = accessAttribute(rootElement, attributePath, null, AccessorType.GETTER);
 		return result;
 	}
@@ -102,18 +119,22 @@ public class DotNotationAccessor {
 	/**
 	 * set the value of an attibute, defined via dot notation.
 	 *
-	 * @param rootElement root class instance to start the attribute path resolvation.
-	 * @param attributePath the attribute path (dot notation).
-	 * @param value to set in the final attribute/attributes.
-	 * @throws AttributeAccessExeption on error
+	 * @param rootElement
+	 *            root class instance to start the attribute path resolvation.
+	 * @param attributePath
+	 *            the attribute path (dot notation).
+	 * @param value
+	 *            to set in the final attribute/attributes.
+	 * @throws AttributeAccessExeption
+	 *             on error
 	 */
 	public void setAttribute(Object rootElement, String attributePath, Object value)
-		throws AttributeAccessExeption {
+			throws AttributeAccessExeption {
 		accessAttribute(rootElement, attributePath, value, AccessorType.SETTER);
 	}
 
 	protected Object accessAttribute(Object rootElement, String attributePath, Object value, AccessorType accessorType)
-		throws AttributeAccessExeption {
+			throws AttributeAccessExeption {
 		Object result = null;
 		AttributeDetail[] attributes = null;
 		int i = 0;
@@ -132,32 +153,31 @@ public class DotNotationAccessor {
 
 	public static AttributePathInterpreterResult runInterpreter(String attributePath)
 			throws AttributeAccessExeption, AstInterpreterException {
-		AttributePathParser attributePathParser = Parboiled.createParser(AttributePathParser.class);
-		
-		RecoveringParseRunner<AttributePathParser> recoveringParseRunner = new RecoveringParseRunner<>(attributePathParser.attributePath());
-		
-		ParsingResult<AttributePathParser> parsingResult = recoveringParseRunner.run(attributePath);
-		
-		if(parsingResult.hasErrors()) {
-			throw new AttributeAccessExeption(String.format("AttributePath parse error(s): %s", ErrorUtils.printParseErrors(parsingResult)));
-		}
-		
+		AttributePathParser attributePathParser = Grappa.createParser(AttributePathParser.class);
+
+		AstTreeNode<String> rootNode = Parser.parseInput(AttributePathParser.class, attributePathParser.attributePath(), attributePath, true);
+
 		AstInterpreter<String> attributePathInterpreter = new AstInterpreter<>();
-		Long id = new Date().getTime();
-		ProcessStore<String> processStore = ProcessStore.getInstance(id);
-		// set the result object
-		processStore.setNewVariable(AttributePathParser.ATTRIBUTE_PATH_INTERPRETER_RESULT, new AttributePathInterpreterResult());
-		processStore.setNewVariable(AttributeDetailParser.ATTRIBUTE_DETAIL_INTERPRETER_RESULT, new AttributeDetailInterpreterResult());
-		attributePathInterpreter.execute(attributePathParser.getClass(), parsingResult, id);
-		
+		Long id = new Date().getTime() + UUID.randomUUID().hashCode();
+		ProcessStore<String> processStore = prepareProcessStore(id);
+		attributePathInterpreter.interpretBackwardOrder(AttributePathParser.class, rootNode, id);
+
 		AttributePathInterpreterResult attributePathInterpreterResult = (AttributePathInterpreterResult) processStore.getVariable(AttributePathParser.ATTRIBUTE_PATH_INTERPRETER_RESULT);
 		attributePathInterpreter.cleanUp(id);
 		return attributePathInterpreterResult;
 	}
 
+	private static ProcessStore<String> prepareProcessStore(Long id) {
+		ProcessStore<String> processStore = ProcessStore.getInstance(id);
+		// set the result object
+		processStore.setNewVariable(AttributePathParser.ATTRIBUTE_PATH_INTERPRETER_RESULT, new AttributePathInterpreterResult());
+		processStore.setNewVariable(AttributeDetailParser.ATTRIBUTE_DETAIL_INTERPRETER_RESULT, new AttributeDetailInterpreterResult());
+		return processStore;
+	}
+
 	protected Object accessAttribute(Object element, AttributeDetail[] attributes, int attributeIndex, Object value,
 			AccessorType accessorType)
-		throws IllegalAccessException, IllegalArgumentException, InvocationTargetException, IntrospectionException, InstantiationException {
+			throws IllegalAccessException, IllegalArgumentException, InvocationTargetException, IntrospectionException, InstantiationException {
 		Object result = null;
 		ArrayType arrayType = getArrayType(element);
 
@@ -171,7 +191,7 @@ public class DotNotationAccessor {
 
 	private Object accessArrayTypeAttribute(Object element, AttributeDetail[] attributes, int attributeIndex, Object value,
 			AccessorType accessorType, ArrayType arrayType)
-		throws IllegalAccessException, InvocationTargetException, IntrospectionException, IllegalArgumentException, InstantiationException {
+			throws IllegalAccessException, InvocationTargetException, IntrospectionException, IllegalArgumentException, InstantiationException {
 		Object result = null;
 		Object[] array = arrayType.getArray(element);
 		List<Object> results = new ArrayList<>();
@@ -179,15 +199,15 @@ public class DotNotationAccessor {
 		for (Object object : array) {
 			Object resultObject = accessAttribute(object, attributes, attributeIndex, value, accessorType);
 			switch (accessorType) {
-				case SETTER:
-					if (resultObject != null) {
-						addResultObjects(results, resultObject);
-					}
-					break;
-
-				default:
+			case SETTER:
+				if (resultObject != null) {
 					addResultObjects(results, resultObject);
-					break;
+				}
+				break;
+
+			default:
+				addResultObjects(results, resultObject);
+				break;
 			}
 		}
 		if (results.size() > 0)
@@ -208,7 +228,7 @@ public class DotNotationAccessor {
 
 	protected Object accessNonArrayTypeAttribute(Object element, AttributeDetail[] attributes, int attributeIndex, Object value,
 			AccessorType accessorType)
-		throws IntrospectionException, IllegalAccessException, InvocationTargetException, IllegalArgumentException, InstantiationException {
+			throws IntrospectionException, IllegalAccessException, InvocationTargetException, IllegalArgumentException, InstantiationException {
 		Object result = null;
 		AttributeDetail attribute = attributes[attributeIndex];
 		int nextIndex = attributeIndex + 1;
@@ -219,34 +239,42 @@ public class DotNotationAccessor {
 		}
 		if (attributeIndex == (attributes.length - 1)) {
 			switch (accessorType) {
-				case GETTER:
-					result = getAttributeValueInElement(element, attribute);
-					break;
+			case GETTER:
+				result = getAttributeValueInElement(element, attribute);
+				break;
 
-				case SETTER:
-					setAttributeValueInElement(element, attribute, value);
-					break;
+			case SETTER:
+				setAttributeValueInElement(element, attribute, value);
+				break;
 			}
 		} else {
-			Object nextElement = getAttributeValueInElement(element, attribute);
-			if (nextElement == null) {
-				if (throwExceptionOnNullValueInAttributePath)
-					throw new NullPointerException(String.format("Element %s is null!", attribute.getName()));
-				return null;
-			}
-			ArrayType arrayType = getArrayType(nextElement);
-			if (arrayType.isArrayType()) {
-				if(attribute.getIndex() > -1) {
-					nextElement = arrayType.getArray(nextElement)[attribute.getIndex()];
-					arrayType = ArrayType.NONE;
-				} else if (attribute.getMapKey() != null) {
-					nextElement = arrayType.getMap(nextElement).get(attribute.getMapKey());
-					arrayType = ArrayType.NONE;
-				}
-			}
-			result = accessAttribute(nextElement, attributes, nextIndex, value, accessorType);
+			Object nextElement = getNextElement(element, attribute);
+			if (nextElement != null)
+				result = accessAttribute(nextElement, attributes, nextIndex, value, accessorType);
 		}
 		return result;
+	}
+
+	private Object getNextElement(Object element, AttributeDetail attribute)
+			throws IntrospectionException, IllegalAccessException,
+			InvocationTargetException {
+		Object nextElement = getAttributeValueInElement(element, attribute);
+		if (nextElement == null) {
+			if (throwExceptionOnNullValueInAttributePath)
+				throw new NullPointerException(String.format("Element %s is null!", attribute.getName()));
+			return null;
+		}
+		ArrayType arrayType = getArrayType(nextElement);
+		if (arrayType.isArrayType()) {
+			if (attribute.getIndex() > -1) {
+				nextElement = arrayType.getArray(nextElement)[attribute.getIndex()];
+				arrayType = ArrayType.NONE;
+			} else if (attribute.getMapKey() != null) {
+				nextElement = arrayType.getMap(nextElement).get(attribute.getMapKey());
+				arrayType = ArrayType.NONE;
+			}
+		}
+		return nextElement;
 	}
 
 	private ArrayType getArrayType(Object element) {
@@ -266,11 +294,11 @@ public class DotNotationAccessor {
 	}
 
 	protected Object getAttributeValueInElement(Object element, AttributeDetail attribute)
-		throws IntrospectionException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
+			throws IntrospectionException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
 		Object result = null;
 		Method method = getGetterMethod(element.getClass(), attribute.getName());
 		if (method != null) {
-			result = method.invoke(element, (Object[])null);
+			result = method.invoke(element, (Object[]) null);
 		} else if (!resolveAttributesViaAccessorsOnly) {
 			Field field = getDeclaredField(element.getClass(), attribute.getName());
 
@@ -278,49 +306,56 @@ public class DotNotationAccessor {
 				result = getValue(element, field);
 			}
 		}
+		result = readFromArrayTypeOrMapType(attribute, result);
+		return result;
+	}
+
+	private Object readFromArrayTypeOrMapType(AttributeDetail attribute,
+			Object value) {
+		Object result = value;
 		if ((attribute.isArrayType() || attribute.isMapType()) && (attribute.getIndex() != -1)) {
-			ArrayType arrayType = getArrayType(result);
+			ArrayType arrayType = getArrayType(value);
 
 			switch (arrayType) {
-				case ARRAY:
-					result = Array.get(result, attribute.getIndex());
-					break;
+			case ARRAY:
+				result = Array.get(value, attribute.getIndex());
+				break;
 
-				case COLLECTION:
-					int index = attribute.getIndex();
-					int i = 0;
-					for (Object object : (Collection<?>) result) {
-						if (i++ == index) {
-							result = object;
-							break;
-						}
-					}
-					break;
-					
-			case MAP:
-				index = attribute.getIndex();
-				i = 0;
-				for (Object object : ((Map<?, ?>) result).values()) {
+			case COLLECTION:
+				int index = attribute.getIndex();
+				int i = 0;
+				for (Object object : (Collection<?>) value) {
 					if (i++ == index) {
 						result = object;
 						break;
 					}
 				}
 				break;
-				
+
+			case MAP:
+				index = attribute.getIndex();
+				i = 0;
+				for (Object object : ((Map<?, ?>) value).values()) {
+					if (i++ == index) {
+						result = object;
+						break;
+					}
+				}
+				break;
+
 			case NONE:
 				break;
 			default:
 				break;
 			}
 		} else if (attribute.isMapType() && attribute.getMapKey() != null) {
-			result = ((Map<?, ?>)result).get(attribute.getMapKey());
+			result = ((Map<?, ?>) value).get(attribute.getMapKey());
 		}
 		return result;
 	}
 
 	protected void setAttributeValueInElement(Object element, AttributeDetail attribute, Object value)
-		throws IntrospectionException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, InstantiationException {
+			throws IntrospectionException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, InstantiationException {
 		Method method = getSetterMethod(element.getClass(), attribute.getName());
 		Field field = null;
 		if ((method == null) && !resolveAttributesViaAccessorsOnly) {
@@ -329,12 +364,19 @@ public class DotNotationAccessor {
 			throw new IllegalAccessException("Access via reflection was not permitted!");
 		}
 
+		writeToArrayTypeOrMapType(element, attribute, value, method, field);
+	}
+
+	private void writeToArrayTypeOrMapType(Object element,
+			AttributeDetail attribute, Object value, Method method, Field field)
+			throws IntrospectionException, IllegalAccessException,
+			InvocationTargetException, InstantiationException {
 		if (attribute.isArrayType() || attribute.isMapType()) {
 			Object result = null;
 
 			if (method != null) {
 				Method getMethod = getGetterMethod(element.getClass(), attribute.getName());
-				result = getMethod.invoke(element, (Object[])null);
+				result = getMethod.invoke(element, (Object[]) null);
 			} else {
 				if (field != null)
 					result = getValue(element, field);
@@ -343,20 +385,20 @@ public class DotNotationAccessor {
 			ArrayType arrayType = getArrayType(result);
 
 			switch (arrayType) {
-				case ARRAY:
-					result = setValueInArray(result, attribute, value);
-					break;
+			case ARRAY:
+				result = setValueInArray(result, attribute, value);
+				break;
 
-				case COLLECTION:
-					result = setValueInCollection((Collection<?>) result, attribute, value);
-					break;
-					
-				case MAP:
-					result = setValueInMap((Map<?, ?>)result, attribute, value);
-					break;
+			case COLLECTION:
+				result = setValueInCollection((Collection<?>) result, attribute, value);
+				break;
 
-				case NONE:
-					break;
+			case MAP:
+				result = setValueInMap((Map<?, ?>) result, attribute, value);
+				break;
+
+			case NONE:
+				break;
 			default:
 				break;
 			}
@@ -378,8 +420,8 @@ public class DotNotationAccessor {
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	private Object setValueInMap(Map<?, ?> map, AttributeDetail attribute, Object value)
-		throws InstantiationException, IllegalAccessException {
-		Map copiedObjects = (Map) map.getClass().newInstance();
+			throws InstantiationException, IllegalAccessException {
+		Map copiedObjects = map.getClass().newInstance();
 		if (attribute.getIndex() != -1) {
 			int index = attribute.getIndex();
 			int i = 0;
@@ -394,7 +436,7 @@ public class DotNotationAccessor {
 				copiedObjects.put(entry.getKey(), entry.getValue());
 			}
 			copiedObjects.put(attribute.getMapKey(), value);
-		}else if (attribute.getIndex() == -1) {
+		} else if (attribute.getIndex() == -1) {
 			for (Entry entry : map.entrySet()) {
 				copiedObjects.put(entry.getKey(), value);
 			}
@@ -404,8 +446,8 @@ public class DotNotationAccessor {
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	private Object setValueInCollection(Collection<?> collection, AttributeDetail attribute, Object value)
-		throws InstantiationException, IllegalAccessException {
-		Collection copiedObjects = (Collection) collection.getClass().newInstance();
+			throws InstantiationException, IllegalAccessException {
+		Collection copiedObjects = collection.getClass().newInstance();
 		if (attribute.getIndex() == -1) {
 			for (int i = 0; i < collection.size(); ++i) {
 				copiedObjects.add(value);
@@ -437,31 +479,31 @@ public class DotNotationAccessor {
 	}
 
 	protected Method getGetterMethod(Class<? extends Object> elementClass, String attribute)
-		throws IntrospectionException {
+			throws IntrospectionException {
 		Method method = getAccessorMethod(elementClass, attribute, AccessorType.GETTER);
 		return method;
 	}
 
 	protected Method getSetterMethod(Class<? extends Object> elementClass, String attribute)
-		throws IntrospectionException {
+			throws IntrospectionException {
 		Method method = getAccessorMethod(elementClass, attribute, AccessorType.SETTER);
 		return method;
 	}
 
 	protected Method getAccessorMethod(Class<? extends Object> elementClass, String attribute, AccessorType accessorType)
-		throws IntrospectionException {
+			throws IntrospectionException {
 		Method method = null;
 		BeanInfo beanInfo = Introspector.getBeanInfo(elementClass);
 		for (PropertyDescriptor propertyDescriptor : beanInfo.getPropertyDescriptors()) {
 			if (propertyDescriptor.getName().equals(attribute)) {
 				switch (accessorType) {
-					case SETTER:
-						method = propertyDescriptor.getWriteMethod();
-						break;
+				case SETTER:
+					method = propertyDescriptor.getWriteMethod();
+					break;
 
-					case GETTER:
-						method = propertyDescriptor.getReadMethod();
-						break;
+				case GETTER:
+					method = propertyDescriptor.getReadMethod();
+					break;
 				}
 			}
 			if (method != null)
@@ -494,7 +536,7 @@ public class DotNotationAccessor {
 	 * Returns the value of the given field or null.
 	 */
 	protected Object getValue(Object instance, Field field)
-		throws IllegalArgumentException, IllegalAccessException {
+			throws IllegalArgumentException, IllegalAccessException {
 		boolean accessible = field.isAccessible();
 		if (accessPrivateAttributes)
 			field.setAccessible(true);
@@ -508,7 +550,7 @@ public class DotNotationAccessor {
 	 * Set the value in the given field.
 	 */
 	protected void setValue(Object instance, Field field, Object value)
-		throws IllegalArgumentException, IllegalAccessException {
+			throws IllegalArgumentException, IllegalAccessException {
 		boolean accessible = field.isAccessible();
 		if (accessPrivateAttributes)
 			field.setAccessible(true);

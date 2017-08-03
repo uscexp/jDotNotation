@@ -3,8 +3,7 @@
  */
 package com.github.uscexp.dotnotation.parser.attributepath;
 
-import org.parboiled.Rule;
-
+import com.github.fge.grappa.rules.Rule;
 import com.github.uscexp.dotnotation.parser.attributedetail.AttributeDetailParser;
 
 /**

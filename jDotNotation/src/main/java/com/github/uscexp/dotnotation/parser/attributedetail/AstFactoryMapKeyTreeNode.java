@@ -3,14 +3,12 @@
  */
 package com.github.uscexp.dotnotation.parser.attributedetail;
 
-import java.util.Stack;
 import java.util.StringTokenizer;
-
-import org.parboiled.Node;
 
 import com.github.uscexp.dotnotation.AttributeDetail;
 import com.github.uscexp.grappa.extension.interpreter.ProcessStore;
 import com.github.uscexp.grappa.extension.nodes.AstCommandTreeNode;
+import com.github.uscexp.grappa.extension.util.IStack;
 
 /**
  * @author haui
@@ -18,14 +16,14 @@ import com.github.uscexp.grappa.extension.nodes.AstCommandTreeNode;
  */
 public class AstFactoryMapKeyTreeNode extends AstCommandTreeNode<String> {
 
-	public AstFactoryMapKeyTreeNode(Node<?> node, String value) {
+	public AstFactoryMapKeyTreeNode(String node, String value) {
 		super(node, value);
 	}
 
 	@Override
-	protected void interpret(Long id) throws ReflectiveOperationException {
+	protected void interpretAfterChilds(Long id) throws ReflectiveOperationException {
 		ProcessStore<Object> processStore = ProcessStore.getInstance(id);
-		Stack<Object> stack = processStore.getStack();
+		IStack<Object> stack = processStore.getStack();
 		AttributeDetailInterpreterResult attributeDetailInterpreterResult = (AttributeDetailInterpreterResult) processStore.getVariable(
 				AttributeDetailParser.ATTRIBUTE_DETAIL_INTERPRETER_RESULT);
 		attributeDetailInterpreterResult.setArrayType(false);
@@ -40,6 +38,10 @@ public class AstFactoryMapKeyTreeNode extends AstCommandTreeNode<String> {
 		}
 		String factoryMethod = (String) stack.pop();
 		attributeDetailInterpreterResult.setFactoryMethod(factoryMethod);
+	}
+
+	@Override
+	protected void interpretBeforeChilds(Long id) throws Exception {
 	}
 
 }
