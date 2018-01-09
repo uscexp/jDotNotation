@@ -3,11 +3,8 @@
  */
 package com.github.uscexp.dotnotation.parser.attributedetail;
 
-import org.parboiled.BaseParser;
-import org.parboiled.Rule;
-import org.parboiled.annotations.BuildParseTree;
-import org.parboiled.annotations.SuppressSubnodes;
-
+import com.github.fge.grappa.parsers.BaseParser;
+import com.github.fge.grappa.rules.Rule;
 import com.github.uscexp.grappa.extension.annotations.AstCommand;
 import com.github.uscexp.grappa.extension.annotations.AstValue;
 
@@ -39,7 +36,6 @@ import com.github.uscexp.grappa.extension.annotations.AstValue;
  * @author haui
  *
  */
-@BuildParseTree
 public class AttributeDetailParser extends BaseParser<String> {
 
 	public static final String ATTRIBUTE_DETAIL_INTERPRETER_RESULT = "attributeDetailInterpreterResult";
@@ -138,7 +134,6 @@ public class AttributeDetailParser extends BaseParser<String> {
 	}
 
 	@AstValue
-	@SuppressSubnodes
 	public Rule integerLiteral() {
 		return oneOrMore(digit());
 	}

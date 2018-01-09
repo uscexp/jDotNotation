@@ -8,8 +8,8 @@ import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
+import com.github.fge.grappa.exceptions.InvalidGrammarException;
 import com.github.uscexp.dotnotation.DotNotationAccessor;
-import com.github.uscexp.dotnotation.exception.AttributeAccessExeption;
 import com.github.uscexp.dotnotation.parser.attributedetail.AttributeDetailInterpreterResult;
 
 /**
@@ -49,7 +49,7 @@ public class AttributePathParserTest {
 		assertEquals("bla", element.getValue());
 	}
 
-	@Test(expected = AttributeAccessExeption.class)
+	@Test(expected = InvalidGrammarException.class)
 	public void testParseAttributePathError()
 		throws Exception {
 		String attributePath = "bla.bla].bla[1].bla['a'].bla.bla[java.lang.String(bla)].bla";
@@ -57,7 +57,7 @@ public class AttributePathParserTest {
 		DotNotationAccessor.runInterpreter(attributePath);
 	}
 
-	@Test(expected = AttributeAccessExeption.class)
+	@Test(expected = InvalidGrammarException.class)
 	public void testParseAttributePathError1()
 		throws Exception {
 		String attributePath = "bla.bla[.bla[1].bla['a'].bla.bla[java.lang.String(bla)].bla";
@@ -65,7 +65,7 @@ public class AttributePathParserTest {
 		DotNotationAccessor.runInterpreter(attributePath);
 	}
 
-	@Test(expected = AttributeAccessExeption.class)
+	@Test(expected = InvalidGrammarException.class)
 	public void testParseAttributePathError2()
 		throws Exception {
 		String attributePath = "bla.bla[].bla1].bla['a'].bla.bla[java.lang.String(bla)].bla";
@@ -73,7 +73,7 @@ public class AttributePathParserTest {
 		DotNotationAccessor.runInterpreter(attributePath);
 	}
 
-	@Test(expected = AttributeAccessExeption.class)
+	@Test(expected = InvalidGrammarException.class)
 	public void testParseAttributePathError3()
 		throws Exception {
 		String attributePath = "bla.bla[].bla[1.bla['a'].bla.bla[java.lang.String(bla)].bla";
@@ -81,7 +81,7 @@ public class AttributePathParserTest {
 		DotNotationAccessor.runInterpreter(attributePath);
 	}
 
-	@Test(expected = AttributeAccessExeption.class)
+	@Test(expected = InvalidGrammarException.class)
 	public void testParseAttributePathError4()
 		throws Exception {
 		String attributePath = "bla.bla[].bla[1].['a'].bla.bla[java.lang.String(bla)].bla";
@@ -89,7 +89,7 @@ public class AttributePathParserTest {
 		DotNotationAccessor.runInterpreter(attributePath);
 	}
 
-	@Test(expected = AttributeAccessExeption.class)
+	@Test(expected = InvalidGrammarException.class)
 	public void testParseAttributePathError5()
 		throws Exception {
 		String attributePath = "bla.bla[].bla[1].bla[.bla.bla[java.lang.String(bla)]].bla";

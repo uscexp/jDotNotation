@@ -3,12 +3,9 @@
  */
 package com.github.uscexp.dotnotation.parser.attributedetail;
 
-import java.util.Stack;
-
-import org.parboiled.Node;
-
 import com.github.uscexp.grappa.extension.interpreter.ProcessStore;
 import com.github.uscexp.grappa.extension.nodes.AstCommandTreeNode;
+import com.github.uscexp.grappa.extension.util.IStack;
 
 /**
  * @author haui
@@ -16,14 +13,14 @@ import com.github.uscexp.grappa.extension.nodes.AstCommandTreeNode;
  */
 public class AstConstructorMapKeyTreeNode extends AstCommandTreeNode<String> {
 
-	public AstConstructorMapKeyTreeNode(Node<?> node, String value) {
+	public AstConstructorMapKeyTreeNode(String node, String value) {
 		super(node, value);
 	}
 
 	@Override
-	protected void interpret(Long id) throws ReflectiveOperationException {
+	protected void interpretAfterChilds(Long id) throws ReflectiveOperationException {
 		ProcessStore<Object> processStore = ProcessStore.getInstance(id);
-		Stack<Object> stack = processStore.getStack();
+		IStack<Object> stack = processStore.getStack();
 		AttributeDetailInterpreterResult attributeDetailInterpreterResult = (AttributeDetailInterpreterResult) processStore.getVariable(
 				AttributeDetailParser.ATTRIBUTE_DETAIL_INTERPRETER_RESULT);
 		attributeDetailInterpreterResult.setArrayType(false);
@@ -35,6 +32,10 @@ public class AstConstructorMapKeyTreeNode extends AstCommandTreeNode<String> {
 			stringBuilder.append(stack.pop());
 		}
 		attributeDetailInterpreterResult.setConstructionClass(stringBuilder.toString());
+	}
+
+	@Override
+	protected void interpretBeforeChilds(Long id) throws Exception {
 	}
 
 }

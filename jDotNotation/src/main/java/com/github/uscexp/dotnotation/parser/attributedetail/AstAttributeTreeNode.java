@@ -3,8 +3,6 @@
  */
 package com.github.uscexp.dotnotation.parser.attributedetail;
 
-import org.parboiled.Node;
-
 import com.github.uscexp.dotnotation.parser.attributepath.AttributePathInterpreterResult;
 import com.github.uscexp.dotnotation.parser.attributepath.AttributePathParser;
 import com.github.uscexp.grappa.extension.interpreter.ProcessStore;
@@ -16,12 +14,12 @@ import com.github.uscexp.grappa.extension.nodes.AstCommandTreeNode;
  */
 public class AstAttributeTreeNode extends AstCommandTreeNode<String> {
 
-	public AstAttributeTreeNode(Node<?> node, String value) {
+	public AstAttributeTreeNode(String node, String value) {
 		super(node, value);
 	}
 
 	@Override
-	protected void interpret(Long id) throws ReflectiveOperationException {
+	protected void interpretAfterChilds(Long id) throws ReflectiveOperationException {
 		ProcessStore<Object> processStore = ProcessStore.getInstance(id);
 		AttributeDetailInterpreterResult attributeDetailInterpreterResult = (AttributeDetailInterpreterResult) processStore.getVariable(
 				AttributeDetailParser.ATTRIBUTE_DETAIL_INTERPRETER_RESULT);
@@ -32,6 +30,10 @@ public class AstAttributeTreeNode extends AstCommandTreeNode<String> {
 			attributePathInterpreterResult.getAttributeDetailInterpreterResults().add(0, attributeDetailInterpreterResult);
 			processStore.setVariable(AttributeDetailParser.ATTRIBUTE_DETAIL_INTERPRETER_RESULT, new AttributeDetailInterpreterResult());
 		}
+	}
+
+	@Override
+	protected void interpretBeforeChilds(Long id) throws Exception {
 	}
 
 }
