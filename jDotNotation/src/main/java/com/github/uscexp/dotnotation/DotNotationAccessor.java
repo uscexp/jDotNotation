@@ -31,10 +31,11 @@ import com.github.uscexp.grappa.extension.interpreter.ProcessStore;
 import com.github.uscexp.grappa.extension.nodes.AstTreeNode;
 import com.github.uscexp.grappa.extension.parser.Parser;
 
+//@formatter:off
 /**
  * With this class one can access values of attributes via a defined path from a
  * root element.
- * <p>
+ * <P>
  * To access an attrubute value use the dot notation:<br>
  * <dl>
  * <dt>level1.level2.text</dt>
@@ -50,19 +51,18 @@ import com.github.uscexp.grappa.extension.parser.Parser;
  * <dd>accessses first (index 0) element of collection or array attribute texts
  * <dd>
  * </dl>
- * </p>
  * <b>Attention!</b>
- * <p>
+ * <P>
  * Accessing collections e.g. HashSets via index doesn't make alway sense,
  * because the order of the set isn't fix. So if you set a value at index 0 and
  * later you want to access it, it is very probable that you won't find it at
  * index 0 anymore.
- * </p>
  * 
  * @author haui
  *
  */
 public class DotNotationAccessor {
+//@formatter:on
 
 	private boolean resolveAttributesViaAccessorsOnly = true;
 	private boolean accessPrivateAttributes = false;
@@ -210,8 +210,9 @@ public class DotNotationAccessor {
 				break;
 			}
 		}
-		if (results.size() > 0)
+		if (results.size() > 0) {
 			result = results.toArray(new Object[results.size()]);
+		}
 		return result;
 	}
 
@@ -233,8 +234,9 @@ public class DotNotationAccessor {
 		AttributeDetail attribute = attributes[attributeIndex];
 		int nextIndex = attributeIndex + 1;
 		if (element == null) {
-			if (throwExceptionOnNullValueInAttributePath)
+			if (throwExceptionOnNullValueInAttributePath) {
 				throw new NullPointerException(String.format("Element %s is null!", attributes[attributeIndex - 1].getName()));
+			}
 			return null;
 		}
 		if (attributeIndex == (attributes.length - 1)) {
@@ -249,8 +251,9 @@ public class DotNotationAccessor {
 			}
 		} else {
 			Object nextElement = getNextElement(element, attribute);
-			if (nextElement != null)
+			if (nextElement != null) {
 				result = accessAttribute(nextElement, attributes, nextIndex, value, accessorType);
+			}
 		}
 		return result;
 	}
@@ -260,8 +263,9 @@ public class DotNotationAccessor {
 			InvocationTargetException {
 		Object nextElement = getAttributeValueInElement(element, attribute);
 		if (nextElement == null) {
-			if (throwExceptionOnNullValueInAttributePath)
+			if (throwExceptionOnNullValueInAttributePath) {
 				throw new NullPointerException(String.format("Element %s is null!", attribute.getName()));
+			}
 			return null;
 		}
 		ArrayType arrayType = getArrayType(nextElement);
@@ -378,8 +382,9 @@ public class DotNotationAccessor {
 				Method getMethod = getGetterMethod(element.getClass(), attribute.getName());
 				result = getMethod.invoke(element, (Object[]) null);
 			} else {
-				if (field != null)
+				if (field != null) {
 					result = getValue(element, field);
+				}
 			}
 
 			ArrayType arrayType = getArrayType(result);
@@ -402,18 +407,20 @@ public class DotNotationAccessor {
 			default:
 				break;
 			}
-			if (method != null)
+			if (method != null) {
 				method.invoke(element, result);
-			else {
-				if (field != null)
+			} else {
+				if (field != null) {
 					setValue(element, field, result);
+				}
 			}
 		} else if (!attribute.isArrayType() && !attribute.isMapType()) {
-			if (method != null)
+			if (method != null) {
 				method.invoke(element, value);
-			else {
-				if (field != null)
+			} else {
+				if (field != null) {
 					setValue(element, field, value);
+				}
 			}
 		}
 	}
@@ -426,10 +433,11 @@ public class DotNotationAccessor {
 			int index = attribute.getIndex();
 			int i = 0;
 			for (Entry entry : map.entrySet()) {
-				if (i++ == index)
+				if (i++ == index) {
 					copiedObjects.put(entry.getKey(), value);
-				else
+				} else {
 					copiedObjects.put(entry.getKey(), entry.getValue());
+				}
 			}
 		} else if (attribute.getMapKey() != null) {
 			for (Entry entry : map.entrySet()) {
@@ -456,10 +464,11 @@ public class DotNotationAccessor {
 			int index = attribute.getIndex();
 			int i = 0;
 			for (Object object : collection) {
-				if (i++ == index)
+				if (i++ == index) {
 					copiedObjects.add(value);
-				else
+				} else {
 					copiedObjects.add(object);
+				}
 			}
 		}
 		return copiedObjects;
@@ -506,8 +515,9 @@ public class DotNotationAccessor {
 					break;
 				}
 			}
-			if (method != null)
+			if (method != null) {
 				break;
+			}
 		}
 		return method;
 	}
@@ -521,10 +531,11 @@ public class DotNotationAccessor {
 		while (clazz != null) {
 			try {
 				field = clazz.getDeclaredField(fieldName);
-				if (field == null)
+				if (field == null) {
 					clazz = clazz.getSuperclass();
-				else
+				} else {
 					break;
+				}
 			} catch (NoSuchFieldException e) {
 				clazz = clazz.getSuperclass();
 			}
@@ -538,11 +549,13 @@ public class DotNotationAccessor {
 	protected Object getValue(Object instance, Field field)
 			throws IllegalArgumentException, IllegalAccessException {
 		boolean accessible = field.isAccessible();
-		if (accessPrivateAttributes)
+		if (accessPrivateAttributes) {
 			field.setAccessible(true);
+		}
 		Object value = field.get(instance);
-		if (accessPrivateAttributes)
+		if (accessPrivateAttributes) {
 			field.setAccessible(accessible);
+		}
 		return value;
 	}
 
@@ -552,10 +565,12 @@ public class DotNotationAccessor {
 	protected void setValue(Object instance, Field field, Object value)
 			throws IllegalArgumentException, IllegalAccessException {
 		boolean accessible = field.isAccessible();
-		if (accessPrivateAttributes)
+		if (accessPrivateAttributes) {
 			field.setAccessible(true);
+		}
 		field.set(instance, value);
-		if (accessPrivateAttributes)
+		if (accessPrivateAttributes) {
 			field.setAccessible(accessible);
+		}
 	}
 }
