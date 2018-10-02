@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 by haui - all rights reserved
+ * Copyright (C) 2014 - 2018 by haui - all rights reserved
  */
 package com.github.uscexp.dotnotation;
 
@@ -9,7 +9,7 @@ import java.lang.reflect.Method;
 
 import com.github.uscexp.dotnotation.exception.AttributeAccessExeption;
 import com.github.uscexp.dotnotation.parser.attributedetail.AttributeDetailInterpreterResult;
-import com.github.uscexp.grappa.extension.exception.AstInterpreterException;
+import com.github.uscexp.parboiled.extension.exception.AstInterpreterException;
 
 /**
  * @author haui

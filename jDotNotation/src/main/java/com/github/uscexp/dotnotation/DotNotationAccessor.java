@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 by haui - all rights reserved
+ * Copyright (C) 2014 - 2018 by haui - all rights reserved
  */
 package com.github.uscexp.dotnotation;
 
@@ -19,17 +19,18 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.UUID;
 
-import com.github.fge.grappa.Grappa;
+import org.parboiled.Parboiled;
+
 import com.github.uscexp.dotnotation.exception.AttributeAccessExeption;
 import com.github.uscexp.dotnotation.parser.attributedetail.AttributeDetailInterpreterResult;
 import com.github.uscexp.dotnotation.parser.attributedetail.AttributeDetailParser;
 import com.github.uscexp.dotnotation.parser.attributepath.AttributePathInterpreterResult;
 import com.github.uscexp.dotnotation.parser.attributepath.AttributePathParser;
-import com.github.uscexp.grappa.extension.exception.AstInterpreterException;
-import com.github.uscexp.grappa.extension.interpreter.AstInterpreter;
-import com.github.uscexp.grappa.extension.interpreter.ProcessStore;
-import com.github.uscexp.grappa.extension.nodes.AstTreeNode;
-import com.github.uscexp.grappa.extension.parser.Parser;
+import com.github.uscexp.parboiled.extension.exception.AstInterpreterException;
+import com.github.uscexp.parboiled.extension.interpreter.AstInterpreter;
+import com.github.uscexp.parboiled.extension.interpreter.ProcessStore;
+import com.github.uscexp.parboiled.extension.nodes.AstTreeNode;
+import com.github.uscexp.parboiled.extension.parser.Parser;
 
 //@formatter:off
 /**
@@ -153,7 +154,7 @@ public class DotNotationAccessor {
 
 	public static AttributePathInterpreterResult runInterpreter(String attributePath)
 			throws AttributeAccessExeption, AstInterpreterException {
-		AttributePathParser attributePathParser = Grappa.createParser(AttributePathParser.class);
+		AttributePathParser attributePathParser = Parboiled.createParser(AttributePathParser.class);
 
 		AstTreeNode<String> rootNode = Parser.parseInput(AttributePathParser.class, attributePathParser.attributePath(), attributePath, true);
 
