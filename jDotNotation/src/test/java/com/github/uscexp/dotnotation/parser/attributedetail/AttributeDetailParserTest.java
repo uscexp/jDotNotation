@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 by haui - all rights reserved
+ * Copyright (C) 2014 - 2018 by haui - all rights reserved
  */
 package com.github.uscexp.dotnotation.parser.attributedetail;
 
@@ -10,15 +10,15 @@ import java.util.Date;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.parboiled.Parboiled;
+import org.parboiled.Rule;
 
-import com.github.fge.grappa.Grappa;
-import com.github.fge.grappa.rules.Rule;
 import com.github.uscexp.dotnotation.exception.AttributeAccessExeption;
-import com.github.uscexp.grappa.extension.exception.AstInterpreterException;
-import com.github.uscexp.grappa.extension.interpreter.AstInterpreter;
-import com.github.uscexp.grappa.extension.interpreter.ProcessStore;
-import com.github.uscexp.grappa.extension.nodes.AstTreeNode;
-import com.github.uscexp.grappa.extension.parser.Parser;
+import com.github.uscexp.parboiled.extension.exception.AstInterpreterException;
+import com.github.uscexp.parboiled.extension.interpreter.AstInterpreter;
+import com.github.uscexp.parboiled.extension.interpreter.ProcessStore;
+import com.github.uscexp.parboiled.extension.nodes.AstTreeNode;
+import com.github.uscexp.parboiled.extension.parser.Parser;
 
 /**
  * @author haui
@@ -27,10 +27,10 @@ import com.github.uscexp.grappa.extension.parser.Parser;
 public class AttributeDetailParserTest {
 
 	private static AttributeDetailParser attributeDetailParser;
-	
+
 	@Before
 	public void setup() {
-		attributeDetailParser = Grappa.createParser(AttributeDetailParser.class);
+		attributeDetailParser = Parboiled.createParser(AttributeDetailParser.class);
 	}
 
 	public static AttributeDetailInterpreterResult runInterpreter(String attribute, Rule rule)
@@ -43,7 +43,7 @@ public class AttributeDetailParserTest {
 		// set the result object
 		processStore.setNewVariable(AttributeDetailParser.ATTRIBUTE_DETAIL_INTERPRETER_RESULT, new AttributeDetailInterpreterResult());
 		attributePathInterpreter.interpretBackwardOrder(attributeDetailParser.getClass(), rootNode, id);
-		
+
 		AttributeDetailInterpreterResult attributeDetailInterpreterResult = (AttributeDetailInterpreterResult) processStore.getVariable(AttributeDetailParser.ATTRIBUTE_DETAIL_INTERPRETER_RESULT);
 		attributePathInterpreter.cleanUp(id);
 		return attributeDetailInterpreterResult;
@@ -53,9 +53,9 @@ public class AttributeDetailParserTest {
 	public void testAttributeEOI() throws Exception {
 		String attribute = "attribute";
 		Rule rule = attributeDetailParser.attributeEOI();
-		
+
 		AttributeDetailInterpreterResult result = runInterpreter(attribute, rule);
-		
+
 		assertNotNull(result);
 		assertEquals(attribute, result.getValue());
 	}

@@ -1,9 +1,10 @@
 /*
- * Copyright (C) 2014 by haui - all rights reserved
+ * Copyright (C) 2014 - 2018 by haui - all rights reserved
  */
 package com.github.uscexp.dotnotation.parser.attributepath;
 
-import com.github.fge.grappa.rules.Rule;
+import org.parboiled.Rule;
+
 import com.github.uscexp.dotnotation.parser.attributedetail.AttributeDetailParser;
 
 /**
@@ -15,6 +16,6 @@ public class AttributePathParser extends AttributeDetailParser {
 	public static final Object ATTRIBUTE_PATH_INTERPRETER_RESULT = "attributePathInterpreterResult";
 
 	public Rule attributePath() {
-		return sequence(attribute(), zeroOrMore(sequence(dot(), attribute())), EOI);
+		return Sequence(attribute(), ZeroOrMore(Sequence(dot(), attribute())), EOI);
 	}
 }

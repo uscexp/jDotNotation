@@ -1,12 +1,13 @@
 /*
- * Copyright (C) 2014 by haui - all rights reserved
+ * Copyright (C) 2014 - 2018 by haui - all rights reserved
  */
 package com.github.uscexp.dotnotation.parser.attributedetail;
 
-import com.github.fge.grappa.parsers.BaseParser;
-import com.github.fge.grappa.rules.Rule;
-import com.github.uscexp.grappa.extension.annotations.AstCommand;
-import com.github.uscexp.grappa.extension.annotations.AstValue;
+import org.parboiled.BaseParser;
+import org.parboiled.Rule;
+
+import com.github.uscexp.parboiled.extension.annotations.AstCommand;
+import com.github.uscexp.parboiled.extension.annotations.AstValue;
 
 //@formatter:off
 /**
@@ -44,95 +45,117 @@ public class AttributeDetailParser extends BaseParser<String> {
 
 	@AstCommand
 	public Rule attribute() {
-		return firstOf(attributeComplex(), attributeSimple());
+		return FirstOf(attributeComplex(), attributeSimple());
 	}
 
 	public Rule attributeEOI() {
-		return firstOf(sequence(attributeComplex(), EOI), sequence(attributeSimple(), EOI));
+		return FirstOf(Sequence(attributeComplex(), EOI), Sequence(attributeSimple(), EOI));
 	}
 
 	@AstCommand
 	public Rule attributeComplex() {
-		return sequence(stringLiteral(), attributeArrayDetail());
+		return Sequence(stringLiteral(), attributeArrayDetail());
 	}
 
 	@AstCommand
 	public Rule attributeSimple() {
-		return sequence(stringLiteral(), true);
+		return Sequence(stringLiteral(), true);
 	}
 
 	@AstCommand
 	public Rule attributeArrayDetail() {
-		return sequence(squareBracketOpen(), optional(firstOf(integerLiteral(), simpleMapKey(), constructorMapKey(), factoryMapKey())),
+		return Sequence(squareBracketOpen(), Optional(FirstOf(integerLiteral(), simpleMapKey(), constructorMapKey(), factoryMapKey())),
 				squareBracketClose());
 	}
 
 	@AstCommand
 	public Rule factoryMapKey() {
-		return sequence(stringLiteral(), zeroOrMore(sequence(dot(), firstOf(integerLiteral(), stringLiteral()))), hashMark(), stringLiteral(),
+		return Sequence(stringLiteral(), ZeroOrMore(Sequence(dot(), FirstOf(integerLiteral(), stringLiteral()))), hashMark(), stringLiteral(),
 				bracketOpen(), parameterList(), bracketClose());
 	}
 
 	@AstCommand
 	public Rule constructorMapKey() {
-		return sequence(stringLiteral(), zeroOrMore(sequence(dot(), firstOf(integerLiteral(), stringLiteral()))), bracketOpen(),
+		return Sequence(stringLiteral(), ZeroOrMore(Sequence(dot(), FirstOf(integerLiteral(), stringLiteral()))), bracketOpen(),
 				parameterList(), bracketClose());
 	}
 
 	@AstCommand
 	public Rule parameterList() {
-		return sequence(firstOf(integerLiteral(), stringLiteral(), nullLiteral()),
-				zeroOrMore(sequence(parameterDelimiter(), firstOf(integerLiteral(), stringLiteral(), nullLiteral()))));
+		return Sequence(FirstOf(integerLiteral(), stringLiteral(), nullLiteral()),
+				ZeroOrMore(Sequence(parameterDelimiter(), FirstOf(integerLiteral(), stringLiteral(), nullLiteral()))));
 	}
 
 	@AstCommand
 	public Rule simpleMapKey() {
-		return sequence(quote(), stringLiteral(), quote());
+		return Sequence(quote(), stringLiteral(), quote());
 	}
 
 	@AstValue
 	public Rule stringLiteral() {
-		return sequence(firstOf(alpha(), ch('_'), ch('-')), zeroOrMore(firstOf(alpha(), integerLiteral(), ch('_'), ch('-'))));
+		return Sequence(FirstOf(alpha(), Ch('_'), Ch('-')), ZeroOrMore(FirstOf(alpha(), integerLiteral(), Ch('_'), Ch('-'))));
 	}
 
 	public Rule squareBracketOpen() {
-		return ch('[');
+		return Ch('[');
 	}
 
 	public Rule squareBracketClose() {
-		return ch(']');
+		return Ch(']');
 	}
 
 	public Rule bracketOpen() {
-		return ch('(');
+		return Ch('(');
 	}
 
 	public Rule bracketClose() {
-		return ch(')');
+		return Ch(')');
 	}
 
 	public Rule hashMark() {
-		return ch('#');
+		return Ch('#');
 	}
 
 	public Rule parameterDelimiter() {
-		return ch(',');
+		return Ch(',');
 	}
 
 	public Rule dot() {
-		return ch('.');
+		return Ch('.');
 	}
 
 	public Rule quote() {
-		return ch('\'');
+		return Ch('\'');
 	}
 
 	public Rule nullLiteral() {
-		return string("null");
+		return String("null");
 	}
 
 	@AstValue
 	public Rule integerLiteral() {
-		return oneOrMore(digit());
+		return OneOrMore(digit());
+	}
+
+	/**
+	 * ALPHA as defined by RFC 5234, appendix B, section 1: ASCII letters
+	 *
+	 * <p>
+	 * Therefore a-z, A-Z.
+	 * </p>
+	 *
+	 * @return a rule
+	 */
+	public Rule alpha() {
+		return FirstOf(CharRange('a', 'z'), CharRange('A', 'Z'));
+	}
+
+	/**
+	 * DIGIT as defined by RFC 5234, appendix B, section 1 (0 to 9)
+	 *
+	 * @return a rule
+	 */
+	public Rule digit() {
+		return CharRange('0', '9');
 	}
 }

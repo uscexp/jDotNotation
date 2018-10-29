@@ -1,11 +1,11 @@
 /*
- * Copyright (C) 2014 by haui - all rights reserved
+ * Copyright (C) 2014 - 2018 by haui - all rights reserved
  */
 package com.github.uscexp.dotnotation.parser.attributedetail;
 
-import com.github.uscexp.grappa.extension.interpreter.ProcessStore;
-import com.github.uscexp.grappa.extension.nodes.AstCommandTreeNode;
-import com.github.uscexp.grappa.extension.util.IStack;
+import com.github.uscexp.parboiled.extension.interpreter.ProcessStore;
+import com.github.uscexp.parboiled.extension.nodes.AstCommandTreeNode;
+import com.github.uscexp.parboiled.extension.util.IStack;
 
 /**
  * @author haui
