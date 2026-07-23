@@ -10,7 +10,7 @@ import java.util.Date;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.parboiled.Parboiled;
+import org.parboiled.parser.Parboiled;
 import org.parboiled.Rule;
 
 import com.github.uscexp.dotnotation.exception.AttributeAccessExeption;

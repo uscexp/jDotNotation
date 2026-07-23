@@ -19,7 +19,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.UUID;
 
-import org.parboiled.Parboiled;
+import org.parboiled.parser.Parboiled;
 
 import com.github.uscexp.dotnotation.exception.AttributeAccessExeption;
 import com.github.uscexp.dotnotation.parser.attributedetail.AttributeDetailInterpreterResult;

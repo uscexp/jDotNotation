@@ -3,7 +3,7 @@
  */
 package com.github.uscexp.dotnotation.parser.attributedetail;
 
-import org.parboiled.BaseParser;
+import org.parboiled.parser.BaseParser;
 import org.parboiled.Rule;
 
 import com.github.uscexp.parboiled.extension.annotations.AstCommand;
