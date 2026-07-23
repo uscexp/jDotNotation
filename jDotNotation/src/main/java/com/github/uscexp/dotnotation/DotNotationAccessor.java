@@ -19,7 +19,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.UUID;
 
-import org.parboiled.Parboiled;
+import org.parboiled.parser.Parboiled;
 
 import com.github.uscexp.dotnotation.exception.AttributeAccessExeption;
 import com.github.uscexp.dotnotation.parser.attributedetail.AttributeDetailInterpreterResult;
@@ -37,11 +37,11 @@ import com.github.uscexp.parboiled.extension.parser.Parser;
  * With this class one can access values of attributes via a defined path from a
  * root element.
  * <P>
- * To access an attrubute value use the dot notation:<br>
+ * To access an attribute value use the dot notation:<br>
  * <dl>
  * <dt>level1.level2.text</dt>
- * <dd>accesses attrbute level1 in root class, than accesses attribute level2 in
- * level1 class and than accesses attrbute text in level2 class.</dd>
+ * <dd>accesses attribute level1 in root class, than accesses attribute level2 in
+ * level1 class and than accesses attribute text in level2 class.</dd>
  * <dt>levels1.text</dt>
  * <dd>accesses all text attributes in collection or array levels1 (returns an
  * array).</dd>
@@ -54,7 +54,7 @@ import com.github.uscexp.parboiled.extension.parser.Parser;
  * </dl>
  * <b>Attention!</b>
  * <P>
- * Accessing collections e.g. HashSets via index doesn't make alway sense,
+ * Accessing collections e.g. HashSets via index doesn't make always sense,
  * because the order of the set isn't fix. So if you set a value at index 0 and
  * later you want to access it, it is very probable that you won't find it at
  * index 0 anymore.
@@ -73,7 +73,7 @@ public class DotNotationAccessor {
 	 * Creates an {@link DotNotationAccessor} instance with default
 	 * configuration:<br>
 	 * only resolves attributes via getters and setters, does not access private
-	 * attributes and throws exeptions on null values in attribute path.
+	 * attributes and throws exceptions on null values in attribute path.
 	 */
 	public DotNotationAccessor() {
 		this(false, true, true);
@@ -101,7 +101,7 @@ public class DotNotationAccessor {
 	}
 
 	/**
-	 * get the value/values of an attibute, defined via dot notation.
+	 * get the value/values of an attribute, defined via dot notation.
 	 *
 	 * @param rootElement
 	 *            root class instance to start the attribute path resolvation.
@@ -118,7 +118,7 @@ public class DotNotationAccessor {
 	}
 
 	/**
-	 * set the value of an attibute, defined via dot notation.
+	 * set the value of an attribute, defined via dot notation.
 	 *
 	 * @param rootElement
 	 *            root class instance to start the attribute path resolvation.

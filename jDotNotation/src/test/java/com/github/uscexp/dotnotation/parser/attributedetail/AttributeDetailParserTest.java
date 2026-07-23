@@ -1,16 +1,16 @@
 /*
- * Copyright (C) 2014 - 2018 by haui - all rights reserved
+ * Copyright (C) 2014 - 2026 by haui - all rights reserved
  */
 package com.github.uscexp.dotnotation.parser.attributedetail;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.util.Date;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.parboiled.Parboiled;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.parboiled.parser.Parboiled;
 import org.parboiled.Rule;
 
 import com.github.uscexp.dotnotation.exception.AttributeAccessExeption;
@@ -28,7 +28,7 @@ public class AttributeDetailParserTest {
 
 	private static AttributeDetailParser attributeDetailParser;
 
-	@Before
+	@BeforeEach
 	public void setup() {
 		attributeDetailParser = Parboiled.createParser(AttributeDetailParser.class);
 	}

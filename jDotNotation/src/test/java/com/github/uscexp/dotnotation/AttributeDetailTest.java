@@ -1,13 +1,14 @@
 /*
- * Copyright (C) 2014 - 2018 by haui - all rights reserved
+ * Copyright (C) 2014 - 2026 by haui - all rights reserved
  */
 package com.github.uscexp.dotnotation;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.parboiled.errors.GrammarException;
 
 import com.github.uscexp.dotnotation.exception.AttributeAccessExeption;
@@ -21,6 +22,7 @@ import com.github.uscexp.parboiled.extension.exception.AstInterpreterException;
 public class AttributeDetailTest {
 
 	private static final String GENERATED_NULL = "generatedNull";
+	private String attribute = "attribute";
 
 	public static String createString(String value) {
 		return value == null ? GENERATED_NULL : value;
@@ -32,17 +34,15 @@ public class AttributeDetailTest {
 
 	@Test
 	public void testAttributeDetail() throws Exception {
-		String attribute = "attribute";
-
 		AttributeDetail attributeDetail = constructAttributeDetail(attribute);
 
 		assertEquals(attribute, attributeDetail.getName());
-		assertEquals(false, attributeDetail.isArrayType());
+        assertFalse(attributeDetail.isArrayType());
 
 		attributeDetail = constructAttributeDetail(attribute + "[3]");
 
 		assertEquals(attribute, attributeDetail.getName());
-		assertEquals(true, attributeDetail.isArrayType());
+        assertTrue(attributeDetail.isArrayType());
 		assertEquals(3, attributeDetail.getIndex());
 	}
 
@@ -61,102 +61,93 @@ public class AttributeDetailTest {
 
 	@Test
 	public void testAttributeDetailAccessMapWithString() throws Exception {
-		String attribute = "attribute";
 		AttributeDetail attributeDetail = constructAttributeDetail(attribute + "['test']");
 
 		assertEquals(attribute, attributeDetail.getName());
-		assertEquals(true, attributeDetail.isMapType());
+        assertTrue(attributeDetail.isMapType());
 		assertEquals("test", attributeDetail.getMapKey());
 	}
 
 	@Test
 	public void testAttributeDetailAccessMapWithConstructor() throws Exception {
-		String attribute = "attribute";
 		AttributeDetail attributeDetail = constructAttributeDetail(attribute + "[java.lang.String(test)]");
 
 		assertEquals(attribute, attributeDetail.getName());
-		assertEquals(true, attributeDetail.isMapType());
+        assertTrue(attributeDetail.isMapType());
 		assertEquals("test", attributeDetail.getMapKey());
 	}
 
 	@Test
 	public void testAttributeDetailAccessMapWithFactoryMethod() throws Exception {
-		String attribute = "attribute";
 		AttributeDetail attributeDetail = constructAttributeDetail(attribute + "[java.lang.Integer#valueOf(1)]");
 
 		assertEquals(attribute, attributeDetail.getName());
-		assertEquals(true, attributeDetail.isMapType());
+        assertTrue(attributeDetail.isMapType());
 		assertEquals(Integer.valueOf(1), attributeDetail.getMapKey());
 	}
 
-	@Test(expected = GrammarException.class)
-	public void testAttributeDetailAccessMapWithErrorOnFactoryMethod() throws Exception {
-		String attribute = "attribute";
-		constructAttributeDetail(attribute + "[java.lang.Integer#valueOf#bla(1)]");
+	@Test
+	public void testAttributeDetailAccessMapWithErrorOnFactoryMethod() {
+		assertThrows(GrammarException.class,
+				() -> constructAttributeDetail(attribute + "[java.lang.Integer#valueOf#bla(1)]"));
 	}
 
-	@Test(expected = ClassNotFoundException.class)
-	public void testAttributeDetailAccessMapWithErrorOnFactoryClass() throws Exception {
-		String attribute = "attribute";
-		constructAttributeDetail(attribute + "[bla#valueOf(1)]");
+	@Test
+	public void testAttributeDetailAccessMapWithErrorOnFactoryClass() {
+		assertThrows(ClassNotFoundException.class,
+				() -> constructAttributeDetail(attribute + "[bla#valueOf(1)]"));
 	}
 
-	@Test(expected = NoSuchMethodException.class)
-	public void testAttributeDetailAccessMapWithErrorOnFactoryMethodNotFound() throws Exception {
-		String attribute = "attribute";
-		constructAttributeDetail(attribute + "[java.lang.Integer#bla(1)]");
+	@Test
+	public void testAttributeDetailAccessMapWithErrorOnFactoryMethodNotFound() {
+		assertThrows(NoSuchMethodException.class,
+				() -> constructAttributeDetail(attribute + "[java.lang.Integer#bla(1)]"));
 	}
 
-	@Test(expected = NoSuchMethodException.class)
-	public void testAttributeDetailAccessMapWithErrorOnConstructor() throws Exception {
-		String attribute = "attribute";
-		constructAttributeDetail(attribute + "[java.lang.String(1,2)]");
+	@Test
+	public void testAttributeDetailAccessMapWithErrorOnConstructor() {
+		assertThrows(NoSuchMethodException.class,
+				() -> constructAttributeDetail(attribute + "[java.lang.String(1,2)]"));
 	}
 
 	@Test
 	public void testAttributeDetailAccessMapWithFactoryMethodParameterNull() throws Exception {
-		String attribute = "attribute";
 		AttributeDetail attributeDetail = constructAttributeDetail(attribute + "[com.github.uscexp.dotnotation.AttributeDetailTest#createString(null)]");
 
 		assertEquals(attribute, attributeDetail.getName());
-		assertEquals(true, attributeDetail.isMapType());
+        assertTrue(attributeDetail.isMapType());
 		assertEquals(GENERATED_NULL, attributeDetail.getMapKey());
 	}
 
 	@Test
 	public void testAttributeDetailAccessMapWithFactoryMethodTreeParameters() throws Exception {
-		String attribute = "attribute";
 		AttributeDetail attributeDetail = constructAttributeDetail(attribute + "[com.github.uscexp.dotnotation.AttributeDetailTest#createString(value1,null,value3)]");
 
 		assertEquals(attribute, attributeDetail.getName());
-		assertEquals(true, attributeDetail.isMapType());
+        assertTrue(attributeDetail.isMapType());
 		assertEquals("value1" + GENERATED_NULL + "value3", attributeDetail.getMapKey());
 	}
 
 	@Test
 	public void testAttributeDetail1() throws Exception {
-		String attribute = "attribute";
 		AttributeDetail attributeDetail = constructAttributeDetail(attribute + "[]");
 
 		assertEquals(attribute, attributeDetail.getName());
-		assertEquals(true, attributeDetail.isArrayType());
+        assertTrue(attributeDetail.isArrayType());
 	}
 
-	@Test(expected = GrammarException.class)
-	public void testAttributeDetailError() throws Exception {
-		String attribute = "attribute";
-		constructAttributeDetail(attribute + "[a]");
+	@Test
+	public void testAttributeDetailError() {
+		assertThrows(GrammarException.class, () -> constructAttributeDetail(attribute + "[a]"));
 	}
 
-	@Test(expected = GrammarException.class)
-	public void testAttributeDetailError1() throws Exception {
-		String attribute = "attribute";
-		constructAttributeDetail(attribute + "[2");
+	@Test
+	public void testAttributeDetailError1() {
+		assertThrows(GrammarException.class, () -> constructAttributeDetail(attribute + "[2"));
 	}
 
-	@Test(expected = GrammarException.class)
-	public void testAttributeDetailError2() throws Exception {
-		String attribute = "attribute";
-		constructAttributeDetail(attribute + "][");
+	@Test
+	public void testAttributeDetailError2() {
+		assertThrows(GrammarException.class, () -> constructAttributeDetail(attribute + "]["));
 	}
 }
