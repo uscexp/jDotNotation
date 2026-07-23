@@ -1,7 +1,7 @@
 # AGENTS.md
 
 ## Project at a glance
-- `jDotNotation` is a Maven Java 8 library for dot-notation attribute access across object graphs.
+- `jDotNotation` is a Maven Java 26 library for dot-notation attribute access across object graphs.
 - The actual Maven project lives in `jDotNotation/pom.xml`; run build commands from that subdirectory.
 - Main entry point: `com.github.uscexp.dotnotation.DotNotationAccessor`.
 
@@ -25,10 +25,11 @@
 ## Developer workflow
 - Main verification command: `mvn test` (from `jDotNotation/`).
 - Focused test run: `mvn -Dtest=DotNotationAccessorTest test`.
+- The compiler is configured via `maven-compiler-plugin` with `<release>26</release>`.
 - Release packaging uses the `release` profile (`mvn -Prelease verify`) and attaches sources/javadocs plus GPG signing.
 
 ## Testing patterns
-- Tests are JUnit 4 (`src/test/java/.../*Test.java`); fixtures live under `src/test/java/com/github/uscexp/dotnotation/testclasses/`.
+- Tests are JUnit 5 (`org.junit.jupiter`) in `src/test/java/.../*Test.java`; fixtures live under `src/test/java/com/github/uscexp/dotnotation/testclasses/`.
 - `DotNotationAccessorTest` is the best reference for supported path forms, reflection rules, and expected edge cases.
 - `RootClass` and `KeyObject` model the intended object graph shapes for nested lists, maps, and keyed lookups.
 
@@ -36,4 +37,3 @@
 - Keep parser grammar, interpreter setup, and accessor behavior consistent; syntax changes usually require updates in both parser packages and tests.
 - Preserve the existing package layout under `com.github.uscexp.dotnotation`.
 - Be careful with the legacy API names and spellings (for example `AttributeAccessExeption`); they are part of the public surface.
-
